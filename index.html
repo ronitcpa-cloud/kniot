@@ -17,210 +17,169 @@
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Suez+One&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#E8EDE5;
-  --card:#FBFCF9;
-  --ink:#1B2A20;
-  --muted:#6E7C6F;
-  --green:#2E6F4E;
-  --green-dark:#22553B;
-  --amber:#E8A317;
-  --tomato:#C2371F;
-  --line:#D2DACE;
+  --paper:#E8EDE5; --card:#FBFCF9; --ink:#1B2A20; --muted:#6E7C6F;
+  --green:#2E6F4E; --green-dark:#22553B; --amber:#E8A317; --amber-soft:#FDF3DC;
+  --tomato:#C2371F; --line:#D2DACE;
   --shadow:0 1px 2px rgba(27,42,32,.06), 0 6px 18px rgba(27,42,32,.05);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
-body{
-  background:var(--paper);
-  color:var(--ink);
-  font-family:'Heebo',system-ui,-apple-system,sans-serif;
-  font-size:16px;
-  line-height:1.45;
-  padding-bottom:120px;
-  overscroll-behavior-y:contain;
-}
-button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+body{background:var(--paper);color:var(--ink);font-family:'Heebo',system-ui,-apple-system,sans-serif;
+  font-size:16px;line-height:1.45;padding-bottom:130px;overscroll-behavior-y:contain}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
 button{cursor:pointer;border:none;background:none}
 
-/* ---------- header ---------- */
-header{
-  position:sticky;top:0;z-index:30;
-  background:var(--green);
-  color:#fff;
-  padding:calc(env(safe-area-inset-top) + 14px) 18px 14px;
-  box-shadow:0 2px 14px rgba(27,42,32,.16);
-}
+header{position:sticky;top:0;z-index:30;background:var(--green);color:#fff;
+  padding:calc(env(safe-area-inset-top) + 13px) 18px 0;box-shadow:0 2px 14px rgba(27,42,32,.16)}
 .hrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
-h1{
-  font-family:'Suez One',serif;font-weight:400;
-  font-size:27px;margin:0;letter-spacing:-.01em;
-}
+h1{font-family:'Suez One',serif;font-weight:400;font-size:25px;margin:0}
 .count{font-size:13px;opacity:.85;margin-top:1px;font-weight:500}
-.whoami{
-  display:flex;align-items:center;gap:7px;
-  background:rgba(255,255,255,.14);
-  border-radius:999px;padding:5px 11px 5px 8px;
-  font-size:13px;font-weight:500;
-}
+.whoami{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.14);
+  border-radius:999px;padding:5px 11px 5px 8px;font-size:13px;font-weight:500}
 .dot{width:8px;height:8px;border-radius:50%;background:#8FE3B0;flex:none}
-.dot.off{background:var(--amber)}
-.dot.bad{background:#FF9B8A}
+.dot.off{background:var(--amber)} .dot.bad{background:#FF9B8A}
+.tabs{display:flex;gap:22px;margin-top:11px}
+.tab{padding:9px 1px 10px;font-size:15.5px;font-weight:500;color:rgba(255,255,255,.6);
+  border-bottom:3px solid transparent}
+.tab.on{color:#fff;font-weight:700;border-bottom-color:var(--amber)}
 
-/* ---------- add bar ---------- */
-.composer{
-  position:sticky;top:0;z-index:20;
-  background:var(--paper);
-  padding:12px 14px 8px;
-  border-bottom:1px solid var(--line);
-}
+.composer{background:var(--paper);padding:12px 14px 8px;border-bottom:1px solid var(--line)}
 .addrow{display:flex;gap:8px}
-.addrow input[type=text]{
-  flex:1;min-width:0;
-  background:var(--card);
-  border:1.5px solid var(--line);
-  border-radius:13px;
-  padding:13px 14px;
-  outline:none;
-}
+.addrow input[type=text]{flex:1;min-width:0;background:var(--card);border:1.5px solid var(--line);
+  border-radius:13px;padding:13px 14px;outline:none}
 .addrow input[type=text]:focus{border-color:var(--green)}
-.addbtn{
-  background:var(--green);color:#fff;
-  border-radius:13px;width:52px;flex:none;
-  font-size:26px;font-weight:700;line-height:1;
-  display:flex;align-items:center;justify-content:center;
-}
+.addbtn{background:var(--green);color:#fff;border-radius:13px;width:52px;flex:none;
+  font-size:26px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center}
 .addbtn:active{background:var(--green-dark)}
-.opts{display:flex;gap:8px;margin-top:8px;align-items:center}
-.opts input[type=text]{
-  width:82px;flex:none;background:var(--card);
-  border:1.5px solid var(--line);border-radius:11px;
-  padding:9px 11px;outline:none;font-size:14px;
-}
-.opts select{
-  flex:1;min-width:0;background:var(--card);
-  border:1.5px solid var(--line);border-radius:11px;
-  padding:9px 11px;font-size:14px;outline:none;
-  -webkit-appearance:none;appearance:none;
-}
-.urgbtn{
-  flex:none;border:1.5px solid var(--line);background:var(--card);
-  border-radius:11px;padding:9px 12px;font-size:14px;font-weight:500;
-  color:var(--muted);
-}
-.urgbtn[aria-pressed="true"]{
-  background:var(--tomato);border-color:var(--tomato);color:#fff;
-}
+.opts{display:flex;gap:7px;margin-top:8px;align-items:center}
+.opts input[type=text]{width:76px;flex:none;background:var(--card);border:1.5px solid var(--line);
+  border-radius:11px;padding:9px 10px;outline:none;font-size:14px}
+.opts select{flex:1;min-width:0;background:var(--card);border:1.5px solid var(--line);
+  border-radius:11px;padding:9px 10px;font-size:14px;outline:none;-webkit-appearance:none;appearance:none}
+.chipbtn{flex:none;border:1.5px solid var(--line);background:var(--card);border-radius:11px;
+  padding:9px 11px;font-size:14px;font-weight:500;color:var(--muted)}
+.chipbtn[aria-pressed="true"]{background:var(--tomato);border-color:var(--tomato);color:#fff}
+.chipbtn.note[aria-pressed="true"]{background:var(--ink);border-color:var(--ink)}
+.extra{display:none;gap:7px;margin-top:8px}
+.extra.show{display:flex}
+.extra input{flex:1;min-width:0;background:var(--card);border:1.5px solid var(--line);
+  border-radius:11px;padding:9px 11px;font-size:14px;outline:none}
+.extra input[type=date]{flex:none;width:150px}
 
-/* ---------- favorites ---------- */
 .favwrap{padding:10px 14px 2px}
-.favlabel{
-  font-size:11.5px;font-weight:700;color:var(--muted);
-  letter-spacing:.06em;margin-bottom:7px;
-}
+.favlabel{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.06em;margin-bottom:7px}
 .favs{display:flex;flex-wrap:wrap;gap:7px}
-.fav{
-  background:var(--card);border:1.5px solid var(--line);
-  border-radius:999px;padding:7px 13px;font-size:14px;font-weight:500;
-  display:flex;align-items:center;gap:6px;
-}
+.fav{background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:7px 13px;
+  font-size:14px;font-weight:500;display:flex;align-items:center;gap:6px}
 .fav:active{background:#EFF4EC;border-color:var(--green)}
-.fav .x{color:var(--muted);font-size:16px;line-height:1;padding:0 1px}
+.fav .x{color:var(--muted);font-size:16px;line-height:1}
 .fav.empty{color:var(--muted);border-style:dashed;font-weight:400}
 
-/* ---------- list ---------- */
 main{padding:6px 14px 0}
 .cat{margin-top:20px}
 .cathead{display:flex;align-items:center;gap:9px;margin-bottom:8px}
-.catname{
-  font-family:'Suez One',serif;font-weight:400;font-size:15px;
-  background:var(--ink);color:var(--paper);
-  padding:3px 12px;border-radius:6px;
-}
+.catname{font-family:'Suez One',serif;font-weight:400;font-size:15px;background:var(--ink);
+  color:var(--paper);padding:3px 12px;border-radius:6px}
 .catline{flex:1;height:0;border-top:1.5px dashed var(--line)}
 .catnum{font-size:13px;color:var(--muted);font-weight:700}
 
-.item{
-  display:flex;align-items:center;gap:12px;
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:14px;
-  padding:12px 13px;
-  margin-bottom:7px;
-  box-shadow:var(--shadow);
-  transition:opacity .18s ease, transform .12s ease;
-}
+.item{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);
+  border-radius:14px;padding:12px 13px;margin-bottom:7px;box-shadow:var(--shadow);
+  transition:opacity .18s ease, transform .12s ease}
 .item:active{transform:scale(.988)}
 .item.urgent{border-right:5px solid var(--tomato)}
 .item.done{opacity:.5;box-shadow:none}
-.check{
-  width:27px;height:27px;flex:none;border-radius:50%;
-  border:2px solid var(--line);
-  display:flex;align-items:center;justify-content:center;
-  transition:background .15s, border-color .15s;
-}
+.check{width:27px;height:27px;flex:none;border-radius:50%;border:2px solid var(--line);
+  display:flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s}
 .check svg{width:15px;height:15px;opacity:0;transition:opacity .15s}
 .item.done .check{background:var(--green);border-color:var(--green)}
 .item.done .check svg{opacity:1}
 .body{flex:1;min-width:0}
 .name{font-weight:500;font-size:16.5px;word-break:break-word}
 .item.done .name{text-decoration:line-through}
-.meta{font-size:12px;color:var(--muted);margin-top:1px;display:flex;gap:8px;flex-wrap:wrap}
-.qty{
-  background:#EFF4EC;color:var(--green-dark);
-  border-radius:6px;padding:1px 7px;font-weight:700;font-size:12.5px;
-}
-.del{color:var(--muted);font-size:19px;padding:4px 6px;flex:none;line-height:1}
-.star{font-size:17px;padding:4px 5px;flex:none;line-height:1;color:var(--line)}
-.star.on{color:var(--amber)}
+.meta{font-size:12.5px;color:var(--muted);margin-top:2px;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.note{color:var(--ink);opacity:.72}
+.datepill{background:var(--amber-soft);color:#8A5D00;border:1px solid #F0DCA8;
+  border-radius:6px;padding:0 6px;font-size:12px;font-weight:700}
+.qty{background:#EFF4EC;color:var(--green-dark);border-radius:6px;padding:1px 7px;font-weight:700;font-size:12.5px}
+.more{color:var(--muted);font-size:20px;padding:4px 5px;flex:none;line-height:1;letter-spacing:1px}
+.star{color:var(--amber);font-size:13px;flex:none}
 
-/* ---------- empty + footer ---------- */
-.empty{
-  text-align:center;color:var(--muted);
-  padding:56px 24px;font-size:15px;
-}
-.empty b{display:block;font-family:'Suez One',serif;font-weight:400;
-  font-size:19px;color:var(--ink);margin-bottom:6px}
-.clearbtn{
-  display:block;width:100%;margin:22px 0 8px;
-  background:none;border:1.5px dashed var(--line);
-  border-radius:13px;padding:13px;color:var(--muted);
-  font-size:14.5px;font-weight:500;
-}
+.empty{text-align:center;color:var(--muted);padding:52px 24px;font-size:15px}
+.empty b{display:block;font-family:'Suez One',serif;font-weight:400;font-size:19px;color:var(--ink);margin-bottom:6px}
+.clearbtn{display:block;width:100%;margin:20px 0 8px;background:none;border:1.5px dashed var(--line);
+  border-radius:13px;padding:13px;color:var(--muted);font-size:14.5px;font-weight:500}
 .clearbtn:active{background:var(--card)}
 
-/* ---------- banner ---------- */
-#banner{
-  position:fixed;bottom:calc(env(safe-area-inset-bottom) + 14px);
-  right:14px;left:14px;z-index:50;
-  background:var(--ink);color:var(--paper);
-  border-radius:13px;padding:12px 15px;font-size:14px;
-  box-shadow:0 8px 26px rgba(27,42,32,.28);
-  display:none;
-}
+.bigbtn{display:block;width:100%;background:var(--green);color:#fff;border-radius:14px;
+  padding:15px;font-weight:700;font-size:16px;margin:14px 0 4px;box-shadow:var(--shadow)}
+.bigbtn:active{background:var(--green-dark)}
+.bigbtn[disabled]{background:var(--line);color:var(--muted);box-shadow:none}
+.rcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;
+  margin-bottom:9px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px}
+.rcard:active{transform:scale(.99)}
+.rname{font-family:'Suez One',serif;font-weight:400;font-size:17.5px}
+.rsub{font-size:13px;color:var(--muted);margin-top:2px}
+.chev{color:var(--line);font-size:22px;flex:none}
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:14.5px;
+  font-weight:500;padding:12px 0 2px}
+.rtitle{font-family:'Suez One',serif;font-weight:400;font-size:24px;margin:4px 0 2px}
+.rnote{font-size:14px;color:var(--muted);margin-bottom:12px}
+.hint{font-size:13.5px;color:var(--muted);background:var(--card);border:1px dashed var(--line);
+  border-radius:11px;padding:10px 12px;margin:10px 0 12px}
+.ing{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);
+  border-radius:13px;padding:11px 13px;margin-bottom:7px}
+.ing.off{opacity:.45}
+.ing .name{font-size:16px}
+.box{width:25px;height:25px;flex:none;border-radius:7px;border:2px solid var(--line);
+  display:flex;align-items:center;justify-content:center}
+.ing.on .box{background:var(--green);border-color:var(--green)}
+.box svg{width:14px;height:14px;opacity:0}
+.ing.on .box svg{opacity:1}
+.formrow{margin-bottom:9px}
+.formrow label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:5px}
+.formrow input,.formrow select{width:100%;background:var(--card);border:1.5px solid var(--line);
+  border-radius:12px;padding:12px;outline:none}
+.formrow input:focus,.formrow select:focus{border-color:var(--green)}
+.igrow{display:flex;gap:6px;margin-bottom:7px;align-items:center}
+.igrow input.n{flex:1;min-width:0}
+.igrow input.q{width:66px;flex:none}
+.igrow select{flex:none;width:112px;-webkit-appearance:none;appearance:none}
+.igrow input,.igrow select{background:var(--card);border:1.5px solid var(--line);
+  border-radius:11px;padding:10px;font-size:14px;outline:none}
+.igrow .rm{color:var(--muted);font-size:19px;padding:2px 4px;flex:none}
+.addig{width:100%;border:1.5px dashed var(--line);border-radius:12px;padding:11px;
+  color:var(--muted);font-size:14.5px;font-weight:500;margin-top:2px}
+.danger{width:100%;background:none;border:1.5px solid #EFC9C2;color:var(--tomato);
+  border-radius:13px;padding:13px;font-weight:500;margin-top:10px}
+.ghost{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:13px;
+  padding:13px;font-weight:500;margin-top:8px}
+
+#banner{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 14px);right:14px;left:14px;z-index:60;
+  background:var(--ink);color:var(--paper);border-radius:13px;padding:12px 15px;font-size:14px;
+  box-shadow:0 8px 26px rgba(27,42,32,.28);display:none}
 #banner.show{display:block}
 
-/* ---------- name modal ---------- */
-#gate{
-  position:fixed;inset:0;z-index:100;
-  background:var(--green);
-  display:none;flex-direction:column;
-  align-items:center;justify-content:center;
-  padding:32px;text-align:center;color:#fff;
-}
+#sheetWrap{position:fixed;inset:0;z-index:80;display:none}
+#sheetWrap.show{display:block}
+.scrim{position:absolute;inset:0;background:rgba(27,42,32,.42)}
+.sheet{position:absolute;right:0;left:0;bottom:0;background:var(--paper);
+  border-radius:20px 20px 0 0;padding:8px 16px calc(env(safe-area-inset-bottom) + 18px);
+  max-height:88vh;overflow-y:auto;box-shadow:0 -8px 30px rgba(27,42,32,.24)}
+.grab{width:42px;height:4px;border-radius:99px;background:var(--line);margin:6px auto 14px}
+.sheet h3{font-family:'Suez One',serif;font-weight:400;font-size:20px;margin:0 0 12px}
+
+#gate{position:fixed;inset:0;z-index:100;background:var(--green);display:none;flex-direction:column;
+  align-items:center;justify-content:center;padding:32px;text-align:center;color:#fff}
 #gate.show{display:flex}
 #gate h2{font-family:'Suez One',serif;font-weight:400;font-size:30px;margin:0 0 6px}
 #gate p{margin:0 0 26px;opacity:.85;font-size:15px}
-#gate input{
-  width:100%;max-width:300px;background:rgba(255,255,255,.15);
-  border:1.5px solid rgba(255,255,255,.35);border-radius:13px;
-  padding:14px;color:#fff;text-align:center;font-size:17px;outline:none;
-}
+#gate input{width:100%;max-width:300px;background:rgba(255,255,255,.15);
+  border:1.5px solid rgba(255,255,255,.35);border-radius:13px;padding:14px;color:#fff;
+  text-align:center;font-size:17px;outline:none}
 #gate input::placeholder{color:rgba(255,255,255,.6)}
-#gate button{
-  margin-top:12px;width:100%;max-width:300px;
-  background:#fff;color:var(--green);border-radius:13px;
-  padding:14px;font-weight:700;font-size:16px;
-}
+#gate button{margin-top:12px;width:100%;max-width:300px;background:#fff;color:var(--green);
+  border-radius:13px;padding:14px;font-weight:700;font-size:16px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -241,28 +200,39 @@ main{padding:6px 14px 0}
     </div>
     <button class="whoami" id="whoami"><span class="dot" id="dot"></span><span id="meName">—</span></button>
   </div>
+  <div class="tabs">
+    <button class="tab on" data-tab="list">הרשימה</button>
+    <button class="tab" data-tab="recipes">מתכונים</button>
+  </div>
 </header>
 
-<div class="composer">
-  <div class="addrow">
-    <input id="itemName" type="text" placeholder="מה צריך לקנות?" autocomplete="off" enterkeyhint="done">
-    <button class="addbtn" id="addBtn" aria-label="הוספה">+</button>
+<div id="composerWrap">
+  <div class="composer">
+    <div class="addrow">
+      <input id="itemName" type="text" placeholder="מה צריך לקנות?" autocomplete="off" enterkeyhint="done">
+      <button class="addbtn" id="addBtn" aria-label="הוספה">+</button>
+    </div>
+    <div class="opts">
+      <input id="itemQty" type="text" placeholder="כמות" autocomplete="off">
+      <select id="itemCat"></select>
+      <button class="chipbtn note" id="noteBtn" aria-pressed="false">הערה</button>
+      <button class="chipbtn" id="urgBtn" aria-pressed="false">דחוף</button>
+    </div>
+    <div class="extra" id="extraRow">
+      <input id="itemNote" type="text" placeholder="הערה (לא חובה)" autocomplete="off">
+      <input id="itemDate" type="date" style="display:none">
+    </div>
   </div>
-  <div class="opts">
-    <input id="itemQty" type="text" placeholder="כמות" autocomplete="off">
-    <select id="itemCat"></select>
-    <button class="urgbtn" id="urgBtn" aria-pressed="false">דחוף</button>
+  <div class="favwrap">
+    <div class="favlabel">פריטים קבועים · נגיעה מוסיפה לרשימה</div>
+    <div class="favs" id="favs"></div>
   </div>
 </div>
 
-<div class="favwrap">
-  <div class="favlabel">פריטים קבועים · נגיעה מוסיפה לרשימה</div>
-  <div class="favs" id="favs"></div>
-</div>
-
-<main id="list"></main>
+<main id="main"></main>
 
 <div id="banner"></div>
+<div id="sheetWrap"><div class="scrim" data-close="1"></div><div class="sheet" id="sheet"></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
 <script>
@@ -272,280 +242,462 @@ main{padding:6px 14px 0}
 var SUPABASE_URL = 'https://jicqslxgzpcaqptffyie.supabase.co';
 var SUPABASE_KEY = 'sb_publishable_UnLQ8CH_KXTaXHl_5ExK4g_6Q-Pn-sQ';
 
-var CATS = ['ירקות ופירות','חלב וביצים','בשר ודגים','לחם ומאפים','יבשים ושימורים','קפואים','משקאות','חטיפים ומתוקים','ניקיון','טואלטיקה','לתינוק','אחר'];
+var MEDS = 'תרופות';
+var CATS = ['ירקות ופירות','חלב וביצים','בשרים','דגים','לחם ומאפים','יבשים ושימורים','קפואים',
+            'משקאות','חטיפים ומתוקים','ניקיון','טואלטיקה','לבית',MEDS,'עלי אקספרס/חו"ל','לתינוק','אחר'];
 
-var sb = null, me = '', items = [], favs = [], urgent = false, chan = null;
-var $ = function(id){ return document.getElementById(id); };
+var sb=null, me='', items=[], favs=[], recipes=[], ring=[], chan=null;
+var urgent=false, showNote=false;
+var view='list', curRecipe=null, sel={}, draft=null, lock=false;
+var $=function(id){return document.getElementById(id);};
 
-/* ---------- helpers ---------- */
-function esc(s){
-  return String(s == null ? '' : s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-var bannerT = null;
-function banner(msg, ms){
-  var b = $('banner');
-  b.textContent = msg;
-  b.classList.add('show');
-  clearTimeout(bannerT);
-  if(ms !== 0) bannerT = setTimeout(function(){ b.classList.remove('show'); }, ms || 2600);
-}
-function setDot(state){
-  var d = $('dot');
-  d.className = 'dot' + (state === 'ok' ? '' : state === 'sync' ? ' off' : ' bad');
-}
-function buzz(){ try{ if(navigator.vibrate) navigator.vibrate(8); }catch(e){} }
-function cache(){
-  try{ localStorage.setItem('kniot_cache', JSON.stringify({items:items, favs:favs})); }catch(e){}
-}
-function loadCache(){
-  try{
-    var c = JSON.parse(localStorage.getItem('kniot_cache') || 'null');
-    if(c){ items = c.items || []; favs = c.favs || []; }
-  }catch(e){}
-}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+  .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+var bT=null;
+function banner(msg,ms){var b=$('banner');b.textContent=msg;b.classList.add('show');
+  clearTimeout(bT); if(ms!==0) bT=setTimeout(function(){b.classList.remove('show');}, ms||2800);}
+function setDot(s){$('dot').className='dot'+(s==='ok'?'':s==='sync'?' off':' bad');}
+function buzz(){try{if(navigator.vibrate)navigator.vibrate(8);}catch(e){}}
+function cache(){try{localStorage.setItem('kniot_cache',JSON.stringify(
+  {items:items,favs:favs,recipes:recipes,ring:ring}));}catch(e){}}
+function loadCache(){try{var c=JSON.parse(localStorage.getItem('kniot_cache')||'null');
+  if(c){items=c.items||[];favs=c.favs||[];recipes=c.recipes||[];ring=c.ring||[];}}catch(e){}}
+function fmtDate(s){if(!s)return '';var p=String(s).slice(0,10).split('-');
+  return p.length===3?(p[2]+'/'+p[1]):String(s);}
+function catOptions(selected){return CATS.map(function(c){
+  return '<option'+(c===selected?' selected':'')+'>'+esc(c)+'</option>';}).join('');}
 
-/* ---------- data ---------- */
 function fetchAll(silent){
   if(!sb) return Promise.resolve();
   return Promise.all([
-    sb.from('items').select('*').order('created_at', {ascending:true}),
-    sb.from('favorites').select('*').order('name', {ascending:true})
-  ]).then(function(res){
-    var a = res[0], b = res[1];
-    if(a.error) throw a.error;
-    if(b.error) throw b.error;
-    items = a.data || [];
-    favs = b.data || [];
-    cache();
-    setDot('ok');
-    render();
+    sb.from('items').select('*').order('created_at',{ascending:true}),
+    sb.from('favorites').select('*').order('name',{ascending:true}),
+    sb.from('recipes').select('*').order('name',{ascending:true}),
+    sb.from('recipe_items').select('*').order('sort',{ascending:true})
+  ]).then(function(r){
+    for(var i=0;i<4;i++){ if(r[i].error) throw r[i].error; }
+    items=r[0].data||[]; favs=r[1].data||[]; recipes=r[2].data||[]; ring=r[3].data||[];
+    cache(); setDot('ok'); render();
   }).catch(function(err){
     setDot('bad');
     if(!silent){
-      var m = (err && err.message) ? err.message : 'שגיאה';
-      if(/relation|does not exist|schema/i.test(m)){
-        banner('הטבלאות עוד לא נוצרו במסד הנתונים. צריך להריץ את קוד ה-SQL ב-Supabase.', 0);
-      } else {
-        banner('אין חיבור לשרת — מוצגת הרשימה השמורה במכשיר');
-      }
+      var m=(err&&err.message)?err.message:'';
+      if(/relation|does not exist|column|schema/i.test(m))
+        banner('המבנה במסד הנתונים לא מעודכן. צריך להריץ את קוד ה-SQL החדש ב-Supabase.',0);
+      else banner('אין חיבור לשרת — מוצגת הרשימה השמורה במכשיר');
     }
     render();
   });
 }
 
-function addItem(name, qty, cat, urg){
-  name = (name || '').trim();
-  if(!name) return;
-  var row = {name:name, qty:(qty||'').trim() || null, category:cat || 'אחר', urgent:!!urg, done:false, added_by:me};
-  var tmp = Object.assign({id:'tmp-'+Date.now(), created_at:new Date().toISOString()}, row);
-  items.push(tmp); render(); buzz();
+function addItem(o){
+  var name=(o.name||'').trim(); if(!name) return null;
+  var row={name:name, qty:(o.qty||'').trim()||null, category:o.category||'אחר',
+           urgent:!!o.urgent, done:false, added_by:me,
+           note:(o.note||'').trim()||null, buy_from:o.buy_from||null};
+  items.push(Object.assign({id:'tmp-'+Date.now()+Math.random(),created_at:new Date().toISOString()},row));
+  return row;
+}
+function pushNew(o){
+  var row=addItem(o); if(!row) return;
+  render(); buzz();
   sb.from('items').insert(row).then(function(r){
-    if(r.error){ banner('לא הצלחתי להוסיף את "' + name + '". נסי שוב.'); }
+    if(r.error) banner('לא הצלחתי להוסיף את "'+row.name+'". נסי שוב.');
     fetchAll(true);
   });
 }
-
 function toggle(id){
-  var it = items.filter(function(x){ return x.id === id; })[0];
-  if(!it) return;
-  it.done = !it.done; render(); buzz();
-  sb.from('items').update({done:it.done}).eq('id', id).then(function(r){
-    if(r.error) banner('העדכון לא נשמר. בודקי חיבור.');
-    fetchAll(true);
-  });
+  var it=items.filter(function(x){return x.id===id;})[0]; if(!it) return;
+  it.done=!it.done; render(); buzz();
+  sb.from('items').update({done:it.done}).eq('id',id).then(function(){fetchAll(true);});
 }
-
+function saveItem(id,patch){
+  var it=items.filter(function(x){return x.id===id;})[0]; if(it) Object.assign(it,patch);
+  render();
+  sb.from('items').update(patch).eq('id',id).then(function(r){
+    if(r.error) banner('העדכון לא נשמר.'); fetchAll(true);});
+}
 function delItem(id){
-  items = items.filter(function(x){ return x.id !== id; });
-  render();
-  sb.from('items').delete().eq('id', id).then(function(){ fetchAll(true); });
+  items=items.filter(function(x){return x.id!==id;}); render();
+  sb.from('items').delete().eq('id',id).then(function(){fetchAll(true);});
 }
-
 function clearDone(){
-  var n = items.filter(function(x){ return x.done; }).length;
-  if(!n) return;
-  if(!confirm('למחוק ' + n + ' פריטים שכבר נקנו?')) return;
-  items = items.filter(function(x){ return !x.done; });
-  render();
-  sb.from('items').delete().eq('done', true).then(function(){ fetchAll(true); });
+  var n=items.filter(function(x){return x.done;}).length; if(!n) return;
+  if(!confirm('למחוק '+n+' פריטים שכבר נקנו?')) return;
+  items=items.filter(function(x){return !x.done;}); render();
+  sb.from('items').delete().eq('done',true).then(function(){fetchAll(true);});
+}
+function isFav(n){return favs.some(function(f){return f.name===n;});}
+function toggleFav(name,cat){
+  var f=favs.filter(function(x){return x.name===name;})[0];
+  if(f){ favs=favs.filter(function(x){return x.name!==name;}); render();
+    sb.from('favorites').delete().eq('id',f.id).then(function(){fetchAll(true);}); }
+  else { favs.push({id:'tmp-'+Date.now(),name:name,category:cat||'אחר'}); render(); buzz();
+    sb.from('favorites').insert({name:name,category:cat||'אחר'}).then(function(){fetchAll(true);}); }
 }
 
-function isFav(name){
-  return favs.some(function(f){ return f.name === name; });
-}
-function toggleFav(name, cat){
-  var f = favs.filter(function(x){ return x.name === name; })[0];
-  if(f){
-    favs = favs.filter(function(x){ return x.name !== name; });
-    render();
-    sb.from('favorites').delete().eq('id', f.id).then(function(){ fetchAll(true); });
-  } else {
-    favs.push({id:'tmp-'+Date.now(), name:name, category:cat || 'אחר'});
-    render(); buzz();
-    sb.from('favorites').insert({name:name, category:cat || 'אחר'}).then(function(){ fetchAll(true); });
-  }
-}
-
-/* ---------- render ---------- */
-var CHECK = '<svg viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5l4 4 8-9"/></svg>';
+var CHECK='<svg viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5l4 4 8-9"/></svg>';
 
 function itemHTML(it){
-  var cls = 'item' + (it.done ? ' done' : '') + (it.urgent && !it.done ? ' urgent' : '');
-  var meta = [];
-  if(it.added_by) meta.push(esc(it.added_by));
-  if(it.urgent && !it.done) meta.push('דחוף');
-  return '<div class="' + cls + '" data-id="' + esc(it.id) + '">' +
-    '<button class="check" data-act="toggle" aria-label="סימון">' + CHECK + '</button>' +
-    '<div class="body" data-act="toggle">' +
-      '<div class="name">' + esc(it.name) + '</div>' +
-      (meta.length ? '<div class="meta">' + meta.map(function(m){ return '<span>' + m + '</span>'; }).join('') + '</div>' : '') +
-    '</div>' +
-    (it.qty ? '<span class="qty">' + esc(it.qty) + '</span>' : '') +
-    '<button class="star' + (isFav(it.name) ? ' on' : '') + '" data-act="fav" aria-label="קבוע">★</button>' +
-    '<button class="del" data-act="del" aria-label="מחיקה">✕</button>' +
-  '</div>';
+  var cls='item'+(it.done?' done':'')+(it.urgent&&!it.done?' urgent':'');
+  var meta='';
+  if(it.buy_from) meta+='<span class="datepill">מ־'+esc(fmtDate(it.buy_from))+'</span>';
+  if(it.note) meta+='<span class="note">'+esc(it.note)+'</span>';
+  if(it.added_by) meta+='<span>'+esc(it.added_by)+'</span>';
+  if(it.urgent&&!it.done) meta+='<span>דחוף</span>';
+  if(isFav(it.name)) meta+='<span class="star">★</span>';
+  return '<div class="'+cls+'" data-id="'+esc(it.id)+'">'+
+    '<button class="check" data-act="toggle" aria-label="סימון">'+CHECK+'</button>'+
+    '<div class="body" data-act="toggle"><div class="name">'+esc(it.name)+'</div>'+
+      (meta?'<div class="meta">'+meta+'</div>':'')+'</div>'+
+    (it.qty?'<span class="qty">'+esc(it.qty)+'</span>':'')+
+    '<button class="more" data-act="edit" aria-label="עוד">⋯</button></div>';
+}
+
+function listView(){
+  var open=items.filter(function(x){return !x.done;});
+  var done=items.filter(function(x){return x.done;});
+  $('count').textContent = open.length ? (open.length+' פריטים לקנות'+(done.length?' · '+done.length+' בסל':''))
+                          : (items.length?'הכל בסל 🎉':'הרשימה ריקה');
+  if(!items.length) return '<div class="empty"><b>הרשימה ריקה</b>מה שתוסיפו כאן יופיע מיד אצל שניכם</div>';
+  var html='', order=CATS.slice();
+  open.forEach(function(it){ if(order.indexOf(it.category)===-1) order.push(it.category); });
+  order.forEach(function(cat){
+    var g=open.filter(function(x){return x.category===cat;}); if(!g.length) return;
+    g.sort(function(a,b){ if(!!b.urgent!==!!a.urgent) return b.urgent?1:-1;
+      return String(a.created_at).localeCompare(String(b.created_at)); });
+    html+='<div class="cat"><div class="cathead"><span class="catname">'+esc(cat)+'</span>'+
+      '<span class="catline"></span><span class="catnum">'+g.length+'</span></div>'+
+      g.map(itemHTML).join('')+'</div>';
+  });
+  if(done.length){
+    html+='<div class="cat"><div class="cathead"><span class="catname">כבר בסל</span>'+
+      '<span class="catline"></span><span class="catnum">'+done.length+'</span></div>'+
+      done.map(itemHTML).join('')+
+      '<button class="clearbtn" id="clearBtn">ניקוי '+done.length+' פריטים שנקנו</button></div>';
+  }
+  return html;
+}
+
+function ingsOf(rid){ return ring.filter(function(x){return x.recipe_id===rid;}); }
+
+function recipesView(){
+  $('count').textContent = recipes.length ? recipes.length+' מתכונים שמורים' : 'עוד אין מתכונים';
+  var html='<button class="bigbtn" data-act="newRecipe">＋ מתכון חדש</button>';
+  if(!recipes.length){
+    html+='<div class="empty"><b>עוד אין מתכונים</b>הכניסי מתכון פעם אחת — ובכל פעם שתרצי להכין אותו, '+
+      'תסמני מה חסר בבית והמצרכים ייכנסו לרשימה לבד</div>';
+    return html;
+  }
+  html+='<div style="margin-top:14px"></div>';
+  recipes.forEach(function(r){
+    var n=ingsOf(r.id).length;
+    html+='<div class="rcard" data-recipe="'+esc(r.id)+'"><div style="flex:1;min-width:0">'+
+      '<div class="rname">'+esc(r.name)+'</div><div class="rsub">'+n+' מצרכים'+
+      (r.note?' · '+esc(r.note):'')+'</div></div><span class="chev">‹</span></div>';
+  });
+  return html;
+}
+
+function recipeView(){
+  var r=recipes.filter(function(x){return x.id===curRecipe;})[0];
+  if(!r){ view='recipes'; return recipesView(); }
+  var ings=ingsOf(r.id);
+  $('count').textContent='מה חסר בבית?';
+  var n=ings.filter(function(i){return sel[i.id];}).length;
+  var html='<button class="back" data-act="toRecipes">› חזרה למתכונים</button>'+
+    '<div class="rtitle">'+esc(r.name)+'</div>'+
+    (r.note?'<div class="rnote">'+esc(r.note)+'</div>':'');
+  if(!ings.length){
+    html+='<div class="hint">למתכון הזה עוד לא הוזנו מצרכים.</div>';
+  } else {
+    html+='<div class="hint">הכול מסומן כברירת מחדל. הורידי סימון ממה שכבר יש בבית — רק המסומנים ייכנסו לרשימה.</div>';
+    ings.forEach(function(i){
+      var on=!!sel[i.id];
+      html+='<div class="ing'+(on?' on':' off')+'" data-ing="'+esc(i.id)+'">'+
+        '<span class="box">'+CHECK+'</span><div style="flex:1;min-width:0">'+
+        '<div class="name">'+esc(i.name)+'</div><div class="rsub">'+esc(i.category||'אחר')+'</div></div>'+
+        (i.qty?'<span class="qty">'+esc(i.qty)+'</span>':'')+'</div>';
+    });
+    html+='<button class="bigbtn" data-act="addRecipe"'+(n?'':' disabled')+'>'+
+      (n?'הוספת '+n+' מצרכים לרשימה':'לא סומן כלום')+'</button>';
+  }
+  html+='<button class="ghost" data-act="editRecipe">עריכת המתכון</button>';
+  return html;
+}
+
+function recipeEditView(){
+  $('count').textContent = draft.id?'עריכת מתכון':'מתכון חדש';
+  var html='<button class="back" data-act="cancelEdit">› ביטול</button>'+
+    '<div class="formrow"><label>שם המתכון</label>'+
+    '<input id="dName" type="text" value="'+esc(draft.name)+'" placeholder="למשל: חמין לשבת"></div>'+
+    '<div class="formrow"><label>הערה (לא חובה)</label>'+
+    '<input id="dNote" type="text" value="'+esc(draft.note)+'" placeholder="למשל: להתחיל יום קודם"></div>'+
+    '<div class="formrow"><label>מצרכים</label>';
+  draft.ings.forEach(function(g,idx){
+    html+='<div class="igrow" data-ig="'+idx+'">'+
+      '<input class="n" type="text" value="'+esc(g.name)+'" placeholder="מצרך">'+
+      '<input class="q" type="text" value="'+esc(g.qty)+'" placeholder="כמות">'+
+      '<select>'+catOptions(g.category)+'</select>'+
+      '<button class="rm" data-act="rmIg" aria-label="הסרה">✕</button></div>';
+  });
+  html+='<button class="addig" data-act="addIg">＋ עוד מצרך</button></div>'+
+    '<button class="bigbtn" data-act="saveRecipe">שמירת המתכון</button>';
+  if(draft.id) html+='<button class="danger" data-act="delRecipe">מחיקת המתכון</button>';
+  return html;
 }
 
 function render(){
-  /* favorites */
-  var fw = $('favs');
-  if(!favs.length){
-    fw.innerHTML = '<span class="fav empty">אין עדיין — סמני ★ ליד פריט כדי לשמור אותו כקבוע</span>';
-  } else {
-    fw.innerHTML = favs.map(function(f){
-      return '<button class="fav" data-fav="' + esc(f.name) + '" data-cat="' + esc(f.category || 'אחר') + '">' +
-        esc(f.name) + '<span class="x" data-act="unfav">✕</span></button>';
-    }).join('');
-  }
+  var fw=$('favs');
+  if(!favs.length) fw.innerHTML='<span class="fav empty">אין עדיין — פתחי ⋯ ליד פריט ושמרי אותו כקבוע</span>';
+  else fw.innerHTML=favs.map(function(f){
+    return '<button class="fav" data-fav="'+esc(f.name)+'" data-cat="'+esc(f.category||'אחר')+'">'+
+      esc(f.name)+'<span class="x" data-act="unfav">✕</span></button>';}).join('');
 
-  /* list */
-  var open = items.filter(function(x){ return !x.done; });
-  var done = items.filter(function(x){ return x.done; });
-  $('count').textContent = open.length ? (open.length + ' פריטים לקנות' + (done.length ? ' · ' + done.length + ' בסל' : '')) : (items.length ? 'הכל בסל 🎉' : 'הרשימה ריקה');
+  $('composerWrap').style.display = (view==='list')?'':'none';
+  [].forEach.call(document.querySelectorAll('.tab'),function(t){
+    t.classList.toggle('on', (t.getAttribute('data-tab')==='list') === (view==='list'));});
 
-  var html = '';
-  if(!items.length){
-    html = '<div class="empty"><b>הרשימה ריקה</b>מה שתוסיפו כאן יופיע מיד אצל שניכם</div>';
-  } else {
-    var order = CATS.slice();
-    open.forEach(function(it){ if(order.indexOf(it.category) === -1) order.push(it.category); });
-    order.forEach(function(cat){
-      var group = open.filter(function(x){ return x.category === cat; });
-      if(!group.length) return;
-      group.sort(function(a, b){
-        if(!!b.urgent !== !!a.urgent) return b.urgent ? 1 : -1;
-        return String(a.created_at).localeCompare(String(b.created_at));
-      });
-      html += '<div class="cat"><div class="cathead">' +
-        '<span class="catname">' + esc(cat) + '</span>' +
-        '<span class="catline"></span>' +
-        '<span class="catnum">' + group.length + '</span>' +
-      '</div>' + group.map(itemHTML).join('') + '</div>';
-    });
-    if(done.length){
-      html += '<div class="cat"><div class="cathead">' +
-        '<span class="catname">כבר בסל</span><span class="catline"></span>' +
-        '<span class="catnum">' + done.length + '</span></div>' +
-        done.map(itemHTML).join('') +
-        '<button class="clearbtn" id="clearBtn">ניקוי ' + done.length + ' פריטים שנקנו</button></div>';
-    }
-  }
-  $('list').innerHTML = html;
+  if(view==='edit' && !draft){ view=curRecipe?'recipe':'recipes'; lock=false; }
+  if(lock && view==='edit') return;
+  if(view==='list') $('main').innerHTML=listView();
+  else if(view==='recipes') $('main').innerHTML=recipesView();
+  else if(view==='recipe') $('main').innerHTML=recipeView();
+  else if(view==='edit'){ $('main').innerHTML=recipeEditView(); lock=true; }
 }
 
-/* ---------- events ---------- */
-document.addEventListener('click', function(e){
-  var favBtn = e.target.closest ? e.target.closest('.fav[data-fav]') : null;
-  if(favBtn){
-    var nm = favBtn.getAttribute('data-fav');
-    if(e.target.getAttribute('data-act') === 'unfav'){ toggleFav(nm); return; }
-    addItem(nm, '', favBtn.getAttribute('data-cat'), false);
-    return;
-  }
-  if(e.target.id === 'clearBtn'){ clearDone(); return; }
+function openSheet(id){
+  var it=items.filter(function(x){return x.id===id;})[0]; if(!it) return;
+  var isMed=it.category===MEDS;
+  $('sheet').innerHTML='<div class="grab"></div><h3>עריכת פריט</h3>'+
+    '<div class="formrow"><label>שם</label><input id="sName" type="text" value="'+esc(it.name)+'"></div>'+
+    '<div class="formrow"><label>כמות</label><input id="sQty" type="text" value="'+esc(it.qty||'')+'" placeholder="לא חובה"></div>'+
+    '<div class="formrow"><label>קטגוריה</label><select id="sCat">'+catOptions(it.category)+'</select></div>'+
+    '<div class="formrow"><label>הערה</label><input id="sNote" type="text" value="'+esc(it.note||'')+'" placeholder="לא חובה"></div>'+
+    '<div class="formrow" id="sDateRow" style="display:'+(isMed?'block':'none')+'">'+
+      '<label>ניתן לרכוש מתאריך</label><input id="sDate" type="date" value="'+esc((it.buy_from||'').slice(0,10))+'"></div>'+
+    '<button class="chipbtn" id="sUrg" aria-pressed="'+(it.urgent?'true':'false')+'" '+
+      'style="width:100%;padding:13px;border-radius:13px;margin-bottom:4px">דחוף</button>'+
+    '<button class="bigbtn" id="sSave">שמירה</button>'+
+    '<button class="ghost" id="sFav">'+(isFav(it.name)?'הסרה מפריטים קבועים':'שמירה כפריט קבוע ★')+'</button>'+
+    '<button class="danger" id="sDel">מחיקת הפריט</button>';
+  $('sheetWrap').classList.add('show');
 
-  var row = e.target.closest ? e.target.closest('.item') : null;
-  if(!row) return;
-  var id = row.getAttribute('data-id');
-  var act = e.target.getAttribute('data-act') || (e.target.closest('[data-act]') ? e.target.closest('[data-act]').getAttribute('data-act') : null);
-  if(act === 'del'){ delItem(id); }
-  else if(act === 'fav'){
-    var it = items.filter(function(x){ return x.id === id; })[0];
-    if(it) toggleFav(it.name, it.category);
+  $('sCat').addEventListener('change',function(){
+    $('sDateRow').style.display = ($('sCat').value===MEDS)?'block':'none';});
+  $('sUrg').addEventListener('click',function(){
+    var p=$('sUrg').getAttribute('aria-pressed')==='true';
+    $('sUrg').setAttribute('aria-pressed',p?'false':'true');});
+  $('sSave').addEventListener('click',function(){
+    var nm=$('sName').value.trim(); if(!nm){$('sName').focus();return;}
+    var cat=$('sCat').value;
+    saveItem(id,{name:nm, qty:$('sQty').value.trim()||null, category:cat,
+      note:$('sNote').value.trim()||null,
+      buy_from:(cat===MEDS && $('sDate').value)?$('sDate').value:null,
+      urgent:$('sUrg').getAttribute('aria-pressed')==='true'});
+    closeSheet();});
+  $('sFav').addEventListener('click',function(){ toggleFav(it.name,$('sCat').value); closeSheet(); });
+  $('sDel').addEventListener('click',function(){
+    if(confirm('למחוק את "'+it.name+'"?')){ delItem(id); closeSheet(); }});
+}
+function closeSheet(){ $('sheetWrap').classList.remove('show'); $('sheet').innerHTML=''; }
+
+function openRecipe(id){
+  curRecipe=id; sel={};
+  ingsOf(id).forEach(function(i){ sel[i.id]=true; });
+  view='recipe'; render();
+}
+function collectDraft(){
+  if(!draft) return;
+  var nEl=$('dName'), noEl=$('dNote');
+  if(nEl) draft.name=nEl.value;
+  if(noEl) draft.note=noEl.value;
+  [].forEach.call(document.querySelectorAll('.igrow'),function(row){
+    var i=+row.getAttribute('data-ig');
+    if(!draft.ings[i]) return;
+    draft.ings[i].name=row.querySelector('.n').value;
+    draft.ings[i].qty=row.querySelector('.q').value;
+    draft.ings[i].category=row.querySelector('select').value;
+  });
+}
+function startEdit(id){
+  if(id){
+    var r=recipes.filter(function(x){return x.id===id;})[0]; if(!r) return;
+    draft={id:r.id,name:r.name,note:r.note||'',ings:ingsOf(r.id).map(function(i){
+      return {name:i.name,qty:i.qty||'',category:i.category||'אחר'};})};
+    if(!draft.ings.length) draft.ings=[{name:'',qty:'',category:'אחר'}];
+  } else {
+    draft={id:null,name:'',note:'',ings:[{name:'',qty:'',category:'אחר'},{name:'',qty:'',category:'אחר'}]};
   }
-  else if(act === 'toggle'){ toggle(id); }
+  view='edit'; lock=false; render();
+}
+function saveRecipe(){
+  collectDraft();
+  var name=(draft.name||'').trim();
+  if(!name){ banner('צריך שם למתכון'); var e=$('dName'); if(e) e.focus(); return; }
+  var ings=draft.ings.filter(function(g){return (g.name||'').trim();})
+    .map(function(g,i){return {name:g.name.trim(), qty:(g.qty||'').trim()||null,
+      category:g.category||'אחר', sort:i};});
+  var note=(draft.note||'').trim()||null;
+  lock=false;
+  var p;
+  if(draft.id){
+    p=sb.from('recipes').update({name:name,note:note}).eq('id',draft.id)
+      .then(function(){ return sb.from('recipe_items').delete().eq('recipe_id',draft.id); })
+      .then(function(){ return draft.id; });
+  } else {
+    p=sb.from('recipes').insert({name:name,note:note}).select().then(function(r){
+      if(r.error||!r.data||!r.data[0]) throw (r.error||new Error('no id'));
+      return r.data[0].id; });
+  }
+  p.then(function(rid){
+    if(!ings.length) return rid;
+    ings.forEach(function(g){ g.recipe_id=rid; });
+    return sb.from('recipe_items').insert(ings).then(function(){ return rid; });
+  }).then(function(rid){
+    curRecipe=rid; sel={}; view='recipe'; draft=null; lock=false;
+    banner('המתכון נשמר');
+    return fetchAll(true).then(function(){ openRecipe(rid); });
+  }).catch(function(){
+    banner('השמירה נכשלה. בדקי חיבור ונסי שוב.');
+    if(!draft){ view=curRecipe?'recipe':'recipes'; lock=false; render(); }
+  });
+}
+function delRecipe(){
+  if(!draft||!draft.id) return;
+  if(!confirm('למחוק את המתכון "'+draft.name+'"?')) return;
+  var id=draft.id; draft=null; lock=false; view='recipes';
+  recipes=recipes.filter(function(r){return r.id!==id;}); render();
+  sb.from('recipe_items').delete().eq('recipe_id',id).then(function(){
+    return sb.from('recipes').delete().eq('id',id); }).then(function(){ fetchAll(true); });
+}
+function addRecipeToList(){
+  var ings=ingsOf(curRecipe).filter(function(i){return sel[i.id];});
+  if(!ings.length) return;
+  var openNames={};
+  items.forEach(function(x){ if(!x.done) openNames[x.name]=1; });
+  var rows=[], dup=0;
+  ings.forEach(function(i){
+    if(openNames[i.name]){ dup++; return; }
+    var row=addItem({name:i.name, qty:i.qty||'', category:i.category||'אחר'});
+    if(row) rows.push(row);
+  });
+  view='list'; render(); buzz();
+  if(!rows.length){ banner('כל המצרכים כבר ברשימה'); return; }
+  sb.from('items').insert(rows).then(function(r){
+    if(r.error) banner('חלק מהמצרכים לא נוספו. נסי שוב.');
+    else banner(rows.length+' מצרכים נוספו לרשימה'+(dup?' · '+dup+' כבר היו בה':''));
+    fetchAll(true);
+  });
+}
+
+document.addEventListener('click',function(e){
+  var t=e.target;
+  var closest=function(s){ return t.closest?t.closest(s):null; };
+
+  if(closest('[data-close]')){ closeSheet(); return; }
+
+  var tab=closest('.tab');
+  if(tab){ var v=tab.getAttribute('data-tab');
+    view=(v==='list')?'list':'recipes'; draft=null; lock=false; render(); return; }
+
+  var act=t.getAttribute('data-act')||(closest('[data-act]')?closest('[data-act]').getAttribute('data-act'):null);
+
+  var favBtn=closest('.fav[data-fav]');
+  if(favBtn){ var nm=favBtn.getAttribute('data-fav');
+    if(act==='unfav'){ toggleFav(nm); return; }
+    pushNew({name:nm,category:favBtn.getAttribute('data-cat')}); return; }
+
+  if(t.id==='clearBtn'){ clearDone(); return; }
+
+  if(act==='newRecipe'){ startEdit(null); return; }
+  if(act==='toRecipes'){ view='recipes'; render(); return; }
+  if(act==='editRecipe'){ startEdit(curRecipe); return; }
+  if(act==='cancelEdit'){ draft=null; lock=false;
+    view=curRecipe?'recipe':'recipes'; render(); return; }
+  if(act==='addIg'){ collectDraft(); draft.ings.push({name:'',qty:'',category:'אחר'});
+    lock=false; render(); var rows=document.querySelectorAll('.igrow');
+    if(rows.length) rows[rows.length-1].querySelector('.n').focus(); return; }
+  if(act==='rmIg'){ collectDraft(); var i=+closest('.igrow').getAttribute('data-ig');
+    draft.ings.splice(i,1); if(!draft.ings.length) draft.ings=[{name:'',qty:'',category:'אחר'}];
+    lock=false; render(); return; }
+  if(act==='saveRecipe'){ saveRecipe(); return; }
+  if(act==='delRecipe'){ collectDraft(); delRecipe(); return; }
+  if(act==='addRecipe'){ addRecipeToList(); return; }
+
+  var rc=closest('[data-recipe]');
+  if(rc){ openRecipe(rc.getAttribute('data-recipe')); return; }
+
+  var ig=closest('[data-ing]');
+  if(ig){ var iid=ig.getAttribute('data-ing'); sel[iid]=!sel[iid]; render(); buzz(); return; }
+
+  var row=closest('.item');
+  if(!row) return;
+  var id=row.getAttribute('data-id');
+  if(act==='edit') openSheet(id);
+  else if(act==='toggle') toggle(id);
 });
 
 function submitNew(){
-  addItem($('itemName').value, $('itemQty').value, $('itemCat').value, urgent);
-  $('itemName').value = ''; $('itemQty').value = '';
-  urgent = false; $('urgBtn').setAttribute('aria-pressed','false');
+  var cat=$('itemCat').value;
+  pushNew({name:$('itemName').value, qty:$('itemQty').value, category:cat, urgent:urgent,
+           note:$('itemNote').value, buy_from:(cat===MEDS&&$('itemDate').value)?$('itemDate').value:null});
+  $('itemName').value=''; $('itemQty').value=''; $('itemNote').value='';
+  urgent=false; $('urgBtn').setAttribute('aria-pressed','false');
   $('itemName').focus();
 }
-$('addBtn').addEventListener('click', submitNew);
-$('itemName').addEventListener('keydown', function(e){ if(e.key === 'Enter') submitNew(); });
-$('itemQty').addEventListener('keydown', function(e){ if(e.key === 'Enter') submitNew(); });
-$('urgBtn').addEventListener('click', function(){
-  urgent = !urgent;
-  $('urgBtn').setAttribute('aria-pressed', urgent ? 'true' : 'false');
-});
-$('whoami').addEventListener('click', function(){
-  $('gateName').value = me;
-  $('gate').classList.add('show');
-});
+$('addBtn').addEventListener('click',submitNew);
+$('itemName').addEventListener('keydown',function(e){if(e.key==='Enter')submitNew();});
+$('itemQty').addEventListener('keydown',function(e){if(e.key==='Enter')submitNew();});
+$('itemNote').addEventListener('keydown',function(e){if(e.key==='Enter')submitNew();});
+$('urgBtn').addEventListener('click',function(){
+  urgent=!urgent; $('urgBtn').setAttribute('aria-pressed',urgent?'true':'false');});
+$('noteBtn').addEventListener('click',function(){
+  showNote=!showNote; $('noteBtn').setAttribute('aria-pressed',showNote?'true':'false');
+  $('extraRow').classList.toggle('show',showNote);
+  if(showNote) $('itemNote').focus();});
+$('itemCat').addEventListener('change',function(){
+  var med=$('itemCat').value===MEDS;
+  $('itemDate').style.display=med?'':'none';
+  if(med){ showNote=true; $('noteBtn').setAttribute('aria-pressed','true');
+    $('extraRow').classList.add('show'); }});
+$('whoami').addEventListener('click',function(){ $('gateName').value=me; $('gate').classList.add('show'); });
 
-/* ---------- realtime + polling ---------- */
 function subscribe(){
   if(!sb) return;
   try{ if(chan) sb.removeChannel(chan); }catch(e){}
-  chan = sb.channel('kniot-sync')
-    .on('postgres_changes', {event:'*', schema:'public', table:'items'}, function(){ fetchAll(true); })
-    .on('postgres_changes', {event:'*', schema:'public', table:'favorites'}, function(){ fetchAll(true); })
-    .subscribe(function(status){
-      if(status === 'SUBSCRIBED') setDot('ok');
-      else if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') setDot('sync');
-    });
+  chan=sb.channel('kniot-sync');
+  ['items','favorites','recipes','recipe_items'].forEach(function(tb){
+    chan=chan.on('postgres_changes',{event:'*',schema:'public',table:tb},function(){fetchAll(true);});
+  });
+  chan.subscribe(function(st){
+    if(st==='SUBSCRIBED') setDot('ok');
+    else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT') setDot('sync');});
 }
-setInterval(function(){ if(!document.hidden) fetchAll(true); }, 7000);
-document.addEventListener('visibilitychange', function(){ if(!document.hidden) fetchAll(true); });
-window.addEventListener('online', function(){ fetchAll(true); subscribe(); });
+setInterval(function(){ if(!document.hidden && !lock) fetchAll(true); },7000);
+document.addEventListener('visibilitychange',function(){ if(!document.hidden && !lock) fetchAll(true); });
+window.addEventListener('online',function(){ fetchAll(true); subscribe(); });
 
-/* ---------- boot ---------- */
 function start(){
-  $('meName').textContent = me;
-  $('gate').classList.remove('show');
-  loadCache();
-  render();
-  fetchAll(false);
-  subscribe();
+  $('meName').textContent=me; $('gate').classList.remove('show');
+  loadCache(); render(); fetchAll(false); subscribe();
 }
+$('gateGo').addEventListener('click',function(){
+  var v=$('gateName').value.trim(); if(!v){$('gateName').focus();return;}
+  me=v; try{localStorage.setItem('kniot_me',me);}catch(e){} start();});
+$('gateName').addEventListener('keydown',function(e){if(e.key==='Enter')$('gateGo').click();});
 
-$('gateGo').addEventListener('click', function(){
-  var v = $('gateName').value.trim();
-  if(!v){ $('gateName').focus(); return; }
-  me = v;
-  try{ localStorage.setItem('kniot_me', me); }catch(e){}
-  start();
-});
-$('gateName').addEventListener('keydown', function(e){ if(e.key === 'Enter') $('gateGo').click(); });
+$('itemCat').innerHTML=catOptions('אחר');
 
-$('itemCat').innerHTML = CATS.map(function(c){
-  return '<option' + (c === 'אחר' ? ' selected' : '') + '>' + esc(c) + '</option>';
-}).join('');
+if(!window.supabase||!window.supabase.createClient)
+  banner('טעינת ספריית החיבור נכשלה. בדקי חיבור לאינטרנט ורענני.',0);
+else sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-if(!window.supabase || !window.supabase.createClient){
-  banner('טעינת ספריית החיבור נכשלה. בדקי חיבור לאינטרנט ורענני.', 0);
-} else {
-  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-}
-
-try{ me = localStorage.getItem('kniot_me') || ''; }catch(e){}
+try{ me=localStorage.getItem('kniot_me')||''; }catch(e){}
 if(me) start(); else $('gate').classList.add('show');
 
 if('serviceWorker' in navigator){
-  window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
 }
 })();
 </script>
