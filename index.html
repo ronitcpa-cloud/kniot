@@ -165,6 +165,11 @@ main{padding:4px 12px 0}
 .ghost{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:13px;
   padding:13px;font-weight:500;margin-top:8px}
 
+.pcomp{background:var(--paper);padding:9px 12px 8px;border-bottom:1px solid var(--line)}
+.pdel{color:var(--muted);font-size:17px;padding:2px 4px;flex:none;line-height:1}
+.pchip{flex:none;border:1.5px solid var(--line);background:var(--card);border-radius:999px;
+  padding:6px 11px;font-size:13px;font-weight:500;color:var(--green-dark)}
+.pchip:active{background:#EFF4EC;border-color:var(--green)}
 #banner{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 14px);right:14px;left:14px;z-index:60;
   background:var(--ink);color:var(--paper);border-radius:13px;padding:12px 15px;font-size:14px;
   box-shadow:0 8px 26px rgba(27,42,32,.28);display:none}
@@ -218,6 +223,7 @@ main{padding:4px 12px 0}
   <div class="tabs">
     <button class="tab on" data-tab="list">הרשימה</button>
     <button class="tab" data-tab="recipes">מתכונים</button>
+    <button class="tab" data-tab="plan">תכנון</button>
   </div>
 </header>
 
@@ -244,6 +250,13 @@ main{padding:4px 12px 0}
   </div>
 </div>
 
+<div id="planWrap" class="pcomp" style="display:none">
+  <div class="addrow">
+    <input id="planName" type="text" placeholder="מה מבשלים לשבת?" autocomplete="off" enterkeyhint="done">
+    <button class="addbtn" id="planAdd" aria-label="הוספה לתכנון">+</button>
+  </div>
+</div>
+
 <main id="main"></main>
 
 <div id="banner"></div>
@@ -261,7 +274,7 @@ var MEDS = 'תרופות';
 var CATS = ['ירקות ופירות','חלב וביצים','בשרים','דגים','לחם ומאפים','יבשים ושימורים','קפואים',
             'משקאות','חטיפים ומתוקים','ניקיון','טואלטיקה','לבית',MEDS,'עלי אקספרס/חו"ל','לתינוק','אחר'];
 
-var sb=null, me='', items=[], favs=[], recipes=[], ring=[], chan=null;
+var sb=null, me='', items=[], favs=[], recipes=[], ring=[], plan=[], planErr=false, chan=null;
 var urgent=false, showNote=false;
 var view='list', curRecipe=null, sel={}, draft=null, lock=false;
 var $=function(id){return document.getElementById(id);};
@@ -274,9 +287,9 @@ function banner(msg,ms){var b=$('banner');b.textContent=msg;b.classList.add('sho
 function setDot(s){$('dot').className='dot'+(s==='ok'?'':s==='sync'?' off':' bad');}
 function buzz(){try{if(navigator.vibrate)navigator.vibrate(8);}catch(e){}}
 function cache(){try{localStorage.setItem('kniot_cache',JSON.stringify(
-  {items:items,favs:favs,recipes:recipes,ring:ring}));}catch(e){}}
+  {items:items,favs:favs,recipes:recipes,ring:ring,plan:plan}));}catch(e){}}
 function loadCache(){try{var c=JSON.parse(localStorage.getItem('kniot_cache')||'null');
-  if(c){items=c.items||[];favs=c.favs||[];recipes=c.recipes||[];ring=c.ring||[];}}catch(e){}}
+  if(c){items=c.items||[];favs=c.favs||[];recipes=c.recipes||[];ring=c.ring||[];plan=c.plan||[];}}catch(e){}}
 function fmtDate(s){if(!s)return '';var p=String(s).slice(0,10).split('-');
   return p.length===3?(p[2]+'/'+p[1]):String(s);}
 function catOptions(selected){return CATS.map(function(c){
@@ -288,10 +301,12 @@ function fetchAll(silent){
     sb.from('items').select('*').order('created_at',{ascending:true}),
     sb.from('favorites').select('*').order('name',{ascending:true}),
     sb.from('recipes').select('*').order('name',{ascending:true}),
-    sb.from('recipe_items').select('*').order('sort',{ascending:true})
+    sb.from('recipe_items').select('*').order('sort',{ascending:true}),
+    sb.from('plan').select('*').order('created_at',{ascending:true})
   ]).then(function(r){
     for(var i=0;i<4;i++){ if(r[i].error) throw r[i].error; }
     items=r[0].data||[]; favs=r[1].data||[]; recipes=r[2].data||[]; ring=r[3].data||[];
+    if(r[4].error) planErr=true; else { planErr=false; plan=r[4].data||[]; }
     cache(); setDot('ok'); render();
   }).catch(function(err){
     setDot('bad');
@@ -394,6 +409,55 @@ function listView(){
   return html;
 }
 
+/* ---------- תכנון ---------- */
+function addPlan(name){
+  name=(name||'').trim(); if(!name) return false;
+  if(plan.some(function(x){return !x.done && x.name===name;})){ banner('"'+name+'" כבר בתכנון'); return false; }
+  var row={name:name, done:false, added_by:me};
+  plan.push(Object.assign({id:'tmp-'+Date.now()+Math.random(),created_at:new Date().toISOString()},row));
+  render(); buzz();
+  sb.from('plan').insert(row).then(function(r){
+    if(r.error) banner('לא הצלחתי להוסיף לתכנון. אם זו הפעם הראשונה — צריך להריץ את קוד ה-SQL.');
+    fetchAll(true);
+  });
+  return true;
+}
+function togglePlan(id){
+  var it=plan.filter(function(x){return x.id===id;})[0]; if(!it) return;
+  it.done=!it.done; render(); buzz();
+  sb.from('plan').update({done:it.done}).eq('id',id).then(function(){fetchAll(true);});
+}
+function delPlan(id){
+  plan=plan.filter(function(x){return x.id!==id;}); render();
+  sb.from('plan').delete().eq('id',id).then(function(){fetchAll(true);});
+}
+function clearPlan(){
+  if(!plan.length) return;
+  if(!confirm('לנקות את כל רשימת התכנון?')) return;
+  plan=[]; render();
+  sb.from('plan').delete().neq('name','').then(function(){fetchAll(true);});
+}
+function planView(){
+  var open=plan.filter(function(x){return !x.done;});
+  var done=plan.filter(function(x){return x.done;});
+  $('count').textContent = plan.length ? (open.length+' לבשל'+(done.length?' · '+done.length+' הוכנו':'')) : 'עוד לא תוכנן כלום';
+  var html='';
+  if(planErr) html+='<div class="hint">כדי שהתכנון יישמר צריך להריץ פעם אחת את קוד ה-SQL של טבלת התכנון ב-Supabase.</div>';
+  if(!plan.length) return html+'<div class="empty"><b>מה מבשלים לשבת?</b>כתבי למעלה, או היכנסי למתכון ולחצי "הוספה לתכנון"</div>';
+  var row=function(it){
+    return '<div class="item'+(it.done?' done':'')+'" data-pid="'+esc(it.id)+'">'+
+      '<button class="check" data-act="ptoggle" aria-label="סימון">'+CHECK+'</button>'+
+      '<div class="body" data-act="ptoggle"><div class="name">'+esc(it.name)+'</div></div>'+
+      '<button class="pdel" data-act="pdel" aria-label="מחיקה">✕</button></div>';
+  };
+  if(open.length) html+='<div class="cat"><div class="cathead"><span class="catname">לבשל</span>'+
+    '<span class="catline"></span><span class="catnum">'+open.length+'</span></div>'+open.map(row).join('')+'</div>';
+  if(done.length) html+='<div class="cat"><div class="cathead"><span class="catname">הוכן ✓</span>'+
+    '<span class="catline"></span><span class="catnum">'+done.length+'</span></div>'+done.map(row).join('')+'</div>';
+  html+='<button class="clearbtn" data-act="pclear">ניקוי כל הרשימה (לשבת הבאה)</button>';
+  return html;
+}
+
 function ingsOf(rid){ return ring.filter(function(x){return x.recipe_id===rid;}); }
 
 function recipesView(){
@@ -409,7 +473,9 @@ function recipesView(){
     var n=ingsOf(r.id).length;
     html+='<div class="rcard" data-recipe="'+esc(r.id)+'"><div style="flex:1;min-width:0">'+
       '<div class="rname">'+esc(r.name)+'</div><div class="rsub">'+n+' מצרכים'+
-      (r.note?' · '+esc(r.note):'')+'</div></div><span class="chev">‹</span></div>';
+      (r.note?' · '+esc(r.note):'')+'</div></div>'+
+      '<button class="pchip" data-act="planCard" data-rname="'+esc(r.name)+'">＋ לתכנון</button>'+
+      '<span class="chev">‹</span></div>';
   });
   return html;
 }
@@ -437,6 +503,7 @@ function recipeView(){
     html+='<button class="bigbtn" data-act="addRecipe"'+(n?'':' disabled')+'>'+
       (n?'הוספת '+n+' מצרכים לרשימה':'לא סומן כלום')+'</button>';
   }
+  html+='<button class="ghost" data-act="planRecipe">＋ הוספה לתכנון השבת</button>';
   html+='<button class="ghost" data-act="editRecipe">עריכת המתכון</button>';
   return html;
 }
@@ -470,12 +537,15 @@ function render(){
       esc(f.name)+'<span class="x" data-act="unfav">✕</span></button>';}).join('');
 
   $('composerWrap').style.display = (view==='list')?'':'none';
+  $('planWrap').style.display = (view==='plan')?'':'none';
+  var tv=(view==='list'||view==='plan')?view:'recipes';
   [].forEach.call(document.querySelectorAll('.tab'),function(t){
-    t.classList.toggle('on', (t.getAttribute('data-tab')==='list') === (view==='list'));});
+    t.classList.toggle('on', t.getAttribute('data-tab')===tv);});
 
   if(view==='edit' && !draft){ view=curRecipe?'recipe':'recipes'; lock=false; }
   if(lock && view==='edit') return;
   if(view==='list') $('main').innerHTML=listView();
+  else if(view==='plan') $('main').innerHTML=planView();
   else if(view==='recipes') $('main').innerHTML=recipesView();
   else if(view==='recipe') $('main').innerHTML=recipeView();
   else if(view==='edit'){ $('main').innerHTML=recipeEditView(); lock=true; }
@@ -615,7 +685,7 @@ document.addEventListener('click',function(e){
 
   var tab=closest('.tab');
   if(tab){ var v=tab.getAttribute('data-tab');
-    view=(v==='list')?'list':'recipes'; draft=null; lock=false; render(); return; }
+    view=(v==='list'||v==='plan')?v:'recipes'; draft=null; lock=false; render(); return; }
 
   var act=t.getAttribute('data-act')||(closest('[data-act]')?closest('[data-act]').getAttribute('data-act'):null);
 
@@ -640,6 +710,14 @@ document.addEventListener('click',function(e){
   if(act==='saveRecipe'){ saveRecipe(); return; }
   if(act==='delRecipe'){ collectDraft(); delRecipe(); return; }
   if(act==='addRecipe'){ addRecipeToList(); return; }
+  if(act==='planRecipe'){ var pr=recipes.filter(function(x){return x.id===curRecipe;})[0];
+    if(pr && addPlan(pr.name)) banner('"'+pr.name+'" נוסף לתכנון'); return; }
+  if(act==='planCard'){ var pn=closest('[data-rname]').getAttribute('data-rname');
+    if(addPlan(pn)) banner('"'+pn+'" נוסף לתכנון'); return; }
+  if(act==='pclear'){ clearPlan(); return; }
+  var prow=closest('[data-pid]');
+  if(prow){ var pid=prow.getAttribute('data-pid');
+    if(act==='pdel') delPlan(pid); else if(act==='ptoggle') togglePlan(pid); return; }
 
   var rc=closest('[data-recipe]');
   if(rc){ openRecipe(rc.getAttribute('data-recipe')); return; }
@@ -663,6 +741,9 @@ function submitNew(){
   $('itemName').focus();
 }
 
+function submitPlan(){ if(addPlan($('planName').value)) $('planName').value=''; $('planName').focus(); }
+$('planAdd').addEventListener('click',submitPlan);
+$('planName').addEventListener('keydown',function(e){if(e.key==='Enter')submitPlan();});
 $('addBtn').addEventListener('click',submitNew);
 $('itemName').addEventListener('keydown',function(e){if(e.key==='Enter')submitNew();});
 $('itemQty').addEventListener('keydown',function(e){if(e.key==='Enter')submitNew();});
@@ -730,7 +811,7 @@ function subscribe(){
   if(!sb) return;
   try{ if(chan) sb.removeChannel(chan); }catch(e){}
   chan=sb.channel('kniot-sync');
-  ['items','favorites','recipes','recipe_items'].forEach(function(tb){
+  ['items','favorites','recipes','recipe_items','plan'].forEach(function(tb){
     chan=chan.on('postgres_changes',{event:'*',schema:'public',table:tb},function(){fetchAll(true);});
   });
   chan.subscribe(function(st){
