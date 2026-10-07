@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <title>קניות</title>
-<!-- גרסה 3 -->
+<!-- גרסה 4 -->
 <meta name="theme-color" content="#2E6F4E">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -296,7 +296,7 @@ textarea.impin{min-height:200px;line-height:1.5}
 var SUPABASE_URL = 'https://jicqslxgzpcaqptffyie.supabase.co';
 var SUPABASE_KEY = 'sb_publishable_UnLQ8CH_KXTaXHl_5ExK4g_6Q-Pn-sQ';
 
-var APP_VER = '3';
+var APP_VER = '4';
 var MEDS = 'תרופות';
 var CATS = ['ירקות ופירות','חלב וביצים','בשרים','דגים','לחם ומאפים','יבשים ושימורים','קפואים',
             'משקאות','חטיפים ומתוקים','ניקיון','טואלטיקה','לבית',MEDS,'עלי אקספרס/חו"ל','לתינוק','אחר'];
@@ -686,13 +686,13 @@ var RE_UNIT_ONLY=new RegExp('^('+UNITS+')\\s+(.+)$');
 var CATMAP=[
   ['בשרים',/עוף|חזה|שוקיים|כרעיים|כנפיים|פרגית|הודו|בקר|בשר|טחון|אנטריקוט|צלעות|כבד|נקניק|שניצל|קציצ|צלי|אסאדו|כתף|שייטל|כבש|טלה/],
   ['דגים',/דג|סלמון|טונה|אמנון|לברק|דניס|בורי|מושט|הליבוט|שרימפ/],
+  ['חטיפים ומתוקים',/שוקולד(?! מריר לבישול)|ריבה|ממרח|סוכריות|עוגיות|ביסקוויט|פתיבר|מרשמלו|חלבה|וופל/],
   ['חלב וביצים',/חלב|ביצ|חמאה|גבינ|שמנת|יוגורט|לבן|קוטג|מוצרלה|פרמזן|ריקוטה|לאבנה|מסקרפונה/],
   ['ירקות ופירות',/בצל|שום|עגבני|מלפפון|פלפל(?! שחור)|גזר|תפו|בטטה|קישוא|חציל|כרוב|חסה|פטרוזיליה|כוסברה|שמיר|נענע|בזיליקום|לימון|תפוח|בננה|תמר|ענב|פטריות|סלרי|כרישה|ברוקולי|כרובית|דלעת|תרד|ג'ינג'ר|ג׳ינג׳ר|אבוקדו|תות|אגס|תפוז|רימון|צנונית|סלק|שעועית ירוקה|אפונה|תירס|בצלצל/],
   ['לחם ומאפים',/לחם|לחמני|פיתה|חלה|פירורי לחם|בגט|טורטיה|לאפה/],
   ['קפואים',/קפוא/],
   ['משקאות',/יין|מיץ|סודה|בירה|קולה/],
-  ['חטיפים ומתוקים',/שוקולד|ריבה|ממרח|סוכריות|עוגיות|ביסקוויט|מרשמלו|חלבה/],
-  ['יבשים ושימורים',/קמח|סוכר|מלח|אורז|פסטה|אטריות|שמן|חומץ|רוטב|רסק|שימור|קטניות|עדשים|חומוס|שעועית|גרגירי|תבלין|פפריקה|כמון|כורכום|קינמון|אבקת|שמרים|סודה לשתייה|דבש|סילאן|טחינה|קוקוס|אגוז|שקד|צימוק|פתיתים|קוסקוס|בורגול|קינואה|סויה|חרדל|מיונז|קטשופ|ונילה|קורנפלור|פלפל שחור|אורגנו|זעתר|ציפורן|הל|אניס|מרק|קקאו|גלטין|פרג|שומשום|גריסים|פירורי|תירס שימורים/]
+  ['יבשים ושימורים',/קמח|סוכר|מלח|אורז|פסטה|אטריות|שמן|חומץ|רוטב|רסק|שימור|קטניות|עדשים|חומוס|שעועית|גרגירי|תבלין|פפריקה|כמון|כורכום|קינמון|אבקת|שמרים|סודה לשתייה|דבש|סילאן|טחינה|קוקוס|אגוז|שקד|צימוק|פתיתים|קוסקוס|בורגול|קינואה|סויה|חרדל|מיונז|קטשופ|ונילה|וניל|תמצית|פודינג|קורנפלור|פלפל שחור|אורגנו|זעתר|ציפורן|הל|אניס|מרק|קקאו|גלטין|פרג|שומשום|גריסים|פירורי|תירס שימורים/]
 ];
 function guessCat(n){
   for(var i=0;i<CATMAP.length;i++) if(CATMAP[i][1].test(n)) return CATMAP[i][0];
@@ -713,23 +713,30 @@ function parseIng(line){
     qty=m[1]; name=m[2];
   }
   name=name.replace(/^(?:של)\s+/,'').replace(/\s*(?:לפי הטעם|לטיגון|לקישוט|להגשה|למריחה|לציפוי|\(לא חובה\)|-?\s*לא חובה)\s*\.?$/,'');
-  var main=name.split(/\s*[,(]\s*/)[0].replace(/[\s\-–:.]+$/,'').trim();
+  var main=name.replace(/\([^)]*\)?/g,' ').replace(/\s+/g,' ').split(/\s*,\s*/)[0].replace(/[\s\-–:.]+$/,'').trim();
   if(main.length>=2) name=main;
   return {name:name.trim(), qty:qty.replace(/\s+/g,' '), category:guessCat(name)};
 }
 function isIngHead(c){ return c.length<30 && /^(?:ה?מצרכים|ה?רכיבים|מרכיבים|ה?חומרים|מה צריך|רשימת (?:ה)?מצרכים|ingredients)/i.test(c); }
 function isInsHead(c){ return c.length<35 && /(?:אופן ה?הכנה|הוראות ה?הכנה|דרך ה?הכנה|שלבי ה?הכנה|^ה?הכנה$|^איך מכינים|^instructions|^preparation|^method)/i.test(c); }
-function isMetaLine(c){ return /^(?:זמן|מנות|רמת קושי|קושי|תפוקה|כמות|כשר|פרווה|חלבי|בשרי|שתפו|הדפס|תגובות|מתכונים נוספים)/.test(c); }
+function isMetaLine(c){ return /^(?:זמן|מנות|מספר מנות|רמת קושי|קושי|תפוקה|כמות|כשר|פרווה|חלבי|בשרי|שתפו|הדפס|תגובות|מתכונים נוספים|ערכים תזונתיים|לרשימת סופר|הצג (?:עוד|פחות)|צפייה בסרטון|התחלת בישול|צ'אט)/.test(c) || /^[\d\s+\-–:'״"ש]+$/.test(c); }
+function isStopHead(c){ return c.length<30 && /^(?:טיפים|טיפ|הערות|מתכונים (?:נוספים|דומים)|אולי יעניין|עוד מתכונים|תגובות|ערכים תזונתיים)/.test(c); }
+function isLabelLine(l){
+  if(l.length>=30 || /[.!:：]$/.test(l)) return false;
+  var r=l.replace(/חצי שעה|רבע שעה|שעתיים|שעות|שעה|דקות|דק'|ד'|מעלות|טורבו|תנור|אפייה|קירור|הקפאה|בישול|טיגון|השריה|מנוחה|התפחה|צלייה|ערבוב|צינון|לישה|כ־|כ-|°|\d+(?:[.,]\d+)?/g,'');
+  return !r.replace(/[\s·|\-–]+/g,'');
+}
 function stripStepNo(l){ return l.replace(/^(?:שלב\s*)?\d{1,2}\s*[.)\-–:]\s*/,'').trim(); }
 
-function parseRecipeText(text){
+function parseRecipeText(text,fromHTML){
   var lines=String(text||'').split(/\r?\n/).map(function(s){return s.replace(/\s+/g,' ').trim();}).filter(Boolean);
   var ingH=-1, insH=-1;
   lines.forEach(function(l,i){
-    var c=l.replace(/[:：\-–]+\s*$/,'').trim();
+    var c=l.replace(/[:：\-–]+\s*$/,'').replace(/\s*\(\d+\)\s*$/,'').trim();
     if(ingH<0 && isIngHead(c)) ingH=i;
     else if(insH<0 && isInsHead(c)) insH=i;
   });
+  if(insH>=0){ for(var z=insH+1; z<lines.length; z++){ if(isStopHead(lines[z].replace(/[:：]\s*$/,''))){ lines=lines.slice(0,z); break; } } }
   var name='', ingLines=[], insLines=[];
   if(ingH>=0 || insH>=0){
     var top=Math.min(ingH<0?1e9:ingH, insH<0?1e9:insH);
@@ -751,14 +758,22 @@ function parseRecipeText(text){
     });
   }
   var ings=[];
-  ingLines.forEach(function(l){
+  ingLines=ingLines.filter(function(l){ return l && !isMetaLine(l); });
+  ingLines.forEach(function(l,i){
     var c=l.trim();
-    if(!c || isMetaLine(c)) return;
     if(/[:：]\s*$/.test(c) && c.length<30) return;   // תת-כותרת כמו "לרוטב:"
     if(c.length>90) return;
-    var g=parseIng(c); if(g.name && g.name.length>1) ings.push(g);
+    var g=parseIng(c);
+    // כותרת קבוצה (כמו "קרם"): קצרה, בלי כמות, לא מצרך מוכר, והשורה הבאה עם כמות
+    var nx=ingLines[i+1]?parseIng(ingLines[i+1]):null;
+    if(!g.qty && c.length<25 && g.category==='אחר' && nx && nx.qty) return;
+    if(g.name && g.name.length>1) ings.push(g);
   });
-  var ins=insLines.map(stripStepNo).filter(function(l){return l && !isMetaLine(l);});
+  var ins=insLines.map(stripStepNo).filter(function(l){
+    if(!l || isMetaLine(l)) return false;
+    if(fromHTML && isLabelLine(l)) return false;   // תוויות כמו "אפייה", "חצי שעה"
+    return true;
+  });
   return {name:name.replace(/[:：]\s*$/,''), ings:ings, instructions:ins.join('\n')};
 }
 
@@ -817,8 +832,12 @@ function parseRecipeHTML(html,url){
       instructions:flatIns(rec.recipeInstructions).map(stripStepNo).join('\n'),
       image:abs(ldImage(rec.image))||ogImg};
   }
-  var r=parseRecipeText(htmlToText(doc));
-  return {name:r.name&&r.name.length<60?r.name:ogTitle, ings:r.ings, instructions:r.instructions, image:ogImg};
+  var h1=doc.querySelector('h1'); var h1t=h1?decodeHTML(h1.textContent):'';
+  var r=parseRecipeText(htmlToText(doc),true);
+  if(h1t && h1t.length<80) r.name=h1t;
+  var t=(r.name&&r.name.length<60&&!/^(?:מתכונים|ראשי|בית)$/.test(r.name))?r.name:ogTitle;
+  t=t.replace(/\s*[|·–-]\s*(?:מתכון|FeedMe|feedme).*$/i,'').trim();
+  return {name:t, ings:r.ings, instructions:r.instructions, image:ogImg};
 }
 function fetchPage(url){
   var viaProxy=function(){
@@ -868,8 +887,9 @@ function openImport(mode){
     return '<button data-imp="'+t[0]+'" class="'+(t[0]===mode?'on':'')+'">'+t[1]+'</button>';}).join('')+'</div>';
   var body='';
   if(mode==='link') body='<input class="impin" id="impUrl" type="url" inputmode="url" placeholder="הדביקי כאן קישור למתכון" autocomplete="off">'+
+    '<button class="ghost" id="impPaste">הדבקה מהלוח</button>'+
     '<button class="bigbtn" id="impGo">קריאת המתכון</button>'+
-    '<div class="hint">עובד הכי טוב באתרי מתכונים גדולים. אם לא זוהה — העתיקי את טקסט המתכון ונסי "הדבקת טקסט".</div>';
+    '<div class="hint">מ־FeedMe: במתכון לוחצים ⋯ ← שיתוף קישור ← העתקה, ואז כאן "הדבקה מהלוח". עובד גם עם אתרי מתכונים אחרים.</div>';
   else if(mode==='shot') body='<label class="filelbl">בחירת צילום מסך<input id="impFile" type="file" accept="image/*"></label>'+
     '<div class="hint">טיפ לדיוק מקסימלי באייפון: פותחים את צילום המסך בתמונות, לוחצים לחיצה ארוכה על הטקסט ← "בחר הכל" ← "העתק", ומדביקים בלשונית "הדבקת טקסט".</div>';
   else body='<textarea class="impin" id="impText" placeholder="הדביקי כאן את כל המתכון — שם, מצרכים ואופן הכנה"></textarea>'+
@@ -895,6 +915,11 @@ function openImport(mode){
     };
     $('impGo').addEventListener('click',go);
     $('impUrl').addEventListener('keydown',function(e){ if(e.key==='Enter') go(); });
+    $('impPaste').addEventListener('click',function(){
+      if(!navigator.clipboard||!navigator.clipboard.readText){ stat('לחצי לחיצה ארוכה על השדה ובחרי "הדבק"'); return; }
+      navigator.clipboard.readText().then(function(t){ $('impUrl').value=(t||'').trim(); if(/https?:\/\//.test(t||'')) go(); })
+        .catch(function(){ stat('לחצי לחיצה ארוכה על השדה ובחרי "הדבק"'); });
+    });
     setTimeout(function(){ try{$('impUrl').focus();}catch(e){} },50);
   } else if(mode==='text'){
     $('impGo').addEventListener('click',function(){
@@ -1168,6 +1193,11 @@ window.addEventListener('online',function(){ fetchAll(true); subscribe(); });
 function start(){
   $('meName').textContent=me; $('gate').classList.remove('show');
   loadCache(); render(); fetchAll(false); subscribe();
+  try{
+    var qp=new URLSearchParams(location.search).get('import');
+    if(qp){ history.replaceState(null,'',location.pathname); view='recipes'; render(); openImport('link');
+      var mm=qp.match(/https?:\/\/\S+/); $('impUrl').value=mm?mm[0]:qp; $('impGo').click(); }
+  }catch(e){}
 }
 $('gateGo').addEventListener('click',function(){
   var v=$('gateName').value.trim(); if(!v){$('gateName').focus();return;}
