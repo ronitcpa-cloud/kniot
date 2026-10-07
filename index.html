@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <title>קניות</title>
-<!-- גרסה 4 -->
+<!-- גרסה 5 -->
 <meta name="theme-color" content="#2E6F4E">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -296,7 +296,7 @@ textarea.impin{min-height:200px;line-height:1.5}
 var SUPABASE_URL = 'https://jicqslxgzpcaqptffyie.supabase.co';
 var SUPABASE_KEY = 'sb_publishable_UnLQ8CH_KXTaXHl_5ExK4g_6Q-Pn-sQ';
 
-var APP_VER = '4';
+var APP_VER = '5';
 var MEDS = 'תרופות';
 var CATS = ['ירקות ופירות','חלב וביצים','בשרים','דגים','לחם ומאפים','יבשים ושימורים','קפואים',
             'משקאות','חטיפים ומתוקים','ניקיון','טואלטיקה','לבית',MEDS,'עלי אקספרס/חו"ל','לתינוק','אחר'];
@@ -839,18 +839,67 @@ function parseRecipeHTML(html,url){
   t=t.replace(/\s*[|·–-]\s*(?:מתכון|FeedMe|feedme).*$/i,'').trim();
   return {name:t, ings:r.ings, instructions:r.instructions, image:ogImg};
 }
-function fetchPage(url){
-  var viaProxy=function(){
-    return fetch('https://api.allorigins.win/get?url='+encodeURIComponent(url))
-      .then(function(r){ return r.json(); })
-      .then(function(j){ if(!j||!j.contents) throw new Error('empty'); return j.contents; });
-  };
-  if(!sb||!sb.functions) return viaProxy();
-  return sb.functions.invoke('fetch-recipe',{body:{url:url}}).then(function(r){
-    if(r.error||!r.data||!r.data.html) throw new Error('fn');
-    return r.data.html;
-  }).catch(viaProxy);
+function withTimeout(p,ms){
+  return new Promise(function(res,rej){ var t=setTimeout(function(){rej(new Error('timeout'));},ms);
+    p.then(function(v){clearTimeout(t);res(v);},function(e){clearTimeout(t);rej(e);}); });
 }
+function looksLikePage(h){ return typeof h==='string' && h.length>200 && /<(?:html|body|script|div|meta)/i.test(h); }
+/* מנסה כמה דרכים לקרוא את הדף, לפי הסדר, עד שאחת מצליחה */
+function fetchPage(url){
+  var enc=encodeURIComponent(url);
+  var routes=[
+    function(){ if(!sb||!sb.functions) throw new Error('nofn');
+      return sb.functions.invoke('fetch-recipe',{body:{url:url}}).then(function(r){
+        if(r.error||!r.data||!looksLikePage(r.data.html)) throw new Error('fn'); return {html:r.data.html}; }); },
+    function(){ return fetch('https://corsproxy.io/?url='+enc).then(function(r){ if(!r.ok) throw 0; return r.text(); })
+      .then(function(h){ if(!looksLikePage(h)) throw 0; return {html:h}; }); },
+    function(){ return fetch('https://api.allorigins.win/get?url='+enc).then(function(r){ return r.json(); })
+      .then(function(j){ if(!j||!looksLikePage(j.contents)) throw 0; return {html:j.contents}; }); },
+    function(){ return fetch('https://api.codetabs.com/v1/proxy/?quest='+enc).then(function(r){ if(!r.ok) throw 0; return r.text(); })
+      .then(function(h){ if(!looksLikePage(h)) throw 0; return {html:h}; }); },
+    function(){ return fetch('https://r.jina.ai/'+url).then(function(r){ if(!r.ok) throw 0; return r.text(); })
+      .then(function(t){ if(!t||t.length<200) throw 0; return {text:t}; }); }
+  ];
+  var i=0;
+  var next=function(){
+    if(i>=routes.length) return Promise.reject(new Error('fetch'));
+    var f=routes[i++], p;
+    try{ p=f(); }catch(e){ return next(); }
+    return withTimeout(p,12000).catch(next);
+  };
+  return next();
+}
+/* טקסט בפורמט markdown (מהשירות האחרון) → טקסט רגיל */
+function mdToText(t){
+  var title=''; var m=String(t).match(/^Title:\s*(.+)$/m); if(m) title=m[1];
+  var body=String(t).replace(/^[\s\S]*?Markdown Content:\s*/,'');
+  body=body.replace(/!\[[^\]]*\]\([^)]*\)/g,'').replace(/\[([^\]]*)\]\([^)]*\)/g,'$1')
+    .replace(/^\s{0,3}#{1,6}\s*/gm,'').replace(/\*\*|__/g,'').replace(/^\s*[-*+]\s+/gm,'• ')
+    .replace(/^\s*(?:=+|-{3,})\s*$/gm,'');
+  return {title:title, text:body};
+}
+function parseFetched(res,url){
+  if(res.html) return parseRecipeHTML(res.html,url);
+  var md=mdToText(res.text), r=parseRecipeText(md.text,true);
+  var img=(String(res.text).match(/!\[[^\]]*\]\((https?:[^)\s]+\.(?:jpe?g|png|webp)[^)\s]*)\)/i)||[])[1]||'';
+  var t=(md.title||r.name||'').replace(/\s*[|·–-]\s*(?:מתכון|FeedMe|feedme).*$/i,'').trim();
+  return {name:t, ings:r.ings, instructions:r.instructions, image:img};
+}
+function extractUrl(t){ var m=String(t||'').match(/https?:\/\/[^\s<>"']+/); return m?m[0].replace(/[).,]+$/,''):''; }
+/* קריאת הלוח: באייפון הקישור שמור לפעמים בנפרד מהכותרת */
+function readClipboardUrl(){
+  var viaRead=(navigator.clipboard&&navigator.clipboard.read)?navigator.clipboard.read().then(function(items){
+    var ps=[];
+    items.forEach(function(it){ ['text/uri-list','text/plain','text/html'].forEach(function(tp){
+      if(it.types.indexOf(tp)>=0) ps.push(it.getType(tp).then(function(b){return b.text();}).catch(function(){return '';})); }); });
+    return Promise.all(ps).then(function(a){ return {url:extractUrl(a.join('\n')), raw:a.join('\n')}; });
+  }):Promise.reject();
+  return viaRead.catch(function(){
+    if(!navigator.clipboard||!navigator.clipboard.readText) throw new Error('noclip');
+    return navigator.clipboard.readText().then(function(t){ return {url:extractUrl(t), raw:t||''}; });
+  });
+}
+
 var tessP=null;
 function loadTess(){
   if(window.Tesseract) return Promise.resolve(window.Tesseract);
@@ -886,7 +935,7 @@ function openImport(mode){
   var tabs='<div class="seg">'+[['link','קישור'],['shot','צילום מסך'],['text','הדבקת טקסט']].map(function(t){
     return '<button data-imp="'+t[0]+'" class="'+(t[0]===mode?'on':'')+'">'+t[1]+'</button>';}).join('')+'</div>';
   var body='';
-  if(mode==='link') body='<input class="impin" id="impUrl" type="url" inputmode="url" placeholder="הדביקי כאן קישור למתכון" autocomplete="off">'+
+  if(mode==='link') body='<input class="impin" id="impUrl" type="text" inputmode="url" dir="ltr" placeholder="הדביקי כאן קישור למתכון" autocomplete="off" autocapitalize="off" spellcheck="false">'+
     '<button class="ghost" id="impPaste">הדבקה מהלוח</button>'+
     '<button class="bigbtn" id="impGo">קריאת המתכון</button>'+
     '<div class="hint">מ־FeedMe: במתכון לוחצים ⋯ ← שיתוף קישור ← העתקה, ואז כאן "הדבקה מהלוח". עובד גם עם אתרי מתכונים אחרים.</div>';
@@ -901,24 +950,35 @@ function openImport(mode){
     b.addEventListener('click',function(){ openImport(b.getAttribute('data-imp')); }); });
   if(mode==='link'){
     var go=function(){
-      var u=($('impUrl').value||'').trim(); var mm=u.match(/https?:\/\/\S+/); u=mm?mm[0]:u;
-      if(!/^https?:\/\//i.test(u)){ stat('צריך קישור שמתחיל ב-http'); return; }
-      stat('קורא את המתכון מהאתר…'); $('impGo').disabled=true;
-      fetchPage(u).then(function(html){
-        var p=parseRecipeHTML(html,u);
-        if(!p.ings.length && !p.instructions) throw new Error('nothing');
+      var raw=($('impUrl').value||'').trim(), u=extractUrl(raw);
+      if(!u){ stat(raw?'מה שהודבק הוא רק שם המתכון, בלי הקישור. ב־FeedMe: ⋯ ← שיתוף קישור ← העתקה, ואז "הדבקה מהלוח".':'צריך להדביק קישור'); return; }
+      $('impUrl').value=u;
+      stat('קורא את המתכון מהאתר… (עד חצי דקה)'); $('impGo').disabled=true;
+      fetchPage(u).then(function(res){
+        var p;
+        try{ p=parseFetched(res,u); }catch(e){ p=null; }
+        if(!p || (!p.ings.length && !p.instructions)){
+          stat('הדף נקרא, אבל לא זיהיתי בו מתכון. שלחי לי את הקישור ואתאים את הקריאה.');
+          if($('impGo')) $('impGo').disabled=false; return;
+        }
         draftFromParsed(p,{image:p.image,source:u});
       }).catch(function(){
-        stat('לא הצלחתי לקרוא את המתכון מהקישור הזה. נסי "הדבקת טקסט".');
+        stat('לא הצלחתי להגיע לדף. בדקי חיבור לאינטרנט ונסי שוב בעוד רגע.');
         if($('impGo')) $('impGo').disabled=false;
       });
     };
     $('impGo').addEventListener('click',go);
     $('impUrl').addEventListener('keydown',function(e){ if(e.key==='Enter') go(); });
+    $('impUrl').addEventListener('paste',function(e){
+      var cd=e.clipboardData; if(!cd) return;
+      var u=extractUrl((cd.getData('text/uri-list')||'')+'\n'+(cd.getData('text/plain')||'')+'\n'+(cd.getData('text/html')||''));
+      if(u){ e.preventDefault(); $('impUrl').value=u; setTimeout(go,50); }
+    });
     $('impPaste').addEventListener('click',function(){
-      if(!navigator.clipboard||!navigator.clipboard.readText){ stat('לחצי לחיצה ארוכה על השדה ובחרי "הדבק"'); return; }
-      navigator.clipboard.readText().then(function(t){ $('impUrl').value=(t||'').trim(); if(/https?:\/\//.test(t||'')) go(); })
-        .catch(function(){ stat('לחצי לחיצה ארוכה על השדה ובחרי "הדבק"'); });
+      readClipboardUrl().then(function(c){
+        if(c.url){ $('impUrl').value=c.url; go(); }
+        else { $('impUrl').value=(c.raw||'').trim(); go(); }
+      }).catch(function(){ stat('לחצי לחיצה ארוכה על השדה ובחרי "הדבק"'); });
     });
     setTimeout(function(){ try{$('impUrl').focus();}catch(e){} },50);
   } else if(mode==='text'){
