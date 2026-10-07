@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <title>קניות</title>
+<!-- גרסה 3 -->
 <meta name="theme-color" content="#2E6F4E">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -170,6 +171,31 @@ main{padding:4px 12px 0}
 .pchip{flex:none;border:1.5px solid var(--line);background:var(--card);border-radius:999px;
   padding:6px 11px;font-size:13px;font-weight:500;color:var(--green-dark)}
 .pchip:active{background:#EFF4EC;border-color:var(--green)}
+.rthumb{width:54px;height:54px;border-radius:10px;object-fit:cover;flex:none;background:var(--line)}
+.rimg{width:100%;max-height:260px;object-fit:cover;border-radius:14px;margin:8px 0 6px;display:block;background:var(--line)}
+.sech{font-family:'Suez One',serif;font-weight:400;font-size:17px;margin:18px 0 6px}
+.steps{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:12px 12px 4px;margin-bottom:8px}
+.steps ol{margin:0;padding-right:22px}
+.steps li{margin-bottom:9px;line-height:1.55}
+.steps p{margin:0 0 9px;line-height:1.55}
+.srclink{display:block;font-size:13px;color:var(--muted);margin:6px 0;word-break:break-all}
+.formrow textarea{width:100%;min-height:160px;background:var(--card);border:1.5px solid var(--line);
+  border-radius:12px;padding:12px;outline:none;line-height:1.5;resize:vertical}
+.formrow textarea:focus{border-color:var(--green)}
+.seg{display:flex;gap:6px;margin-bottom:12px}
+.seg button{flex:1;border:1.5px solid var(--line);background:var(--card);border-radius:11px;
+  padding:10px 4px;font-size:14px;font-weight:500}
+.seg button.on{background:var(--green);color:#fff;border-color:var(--green)}
+.impin{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px;outline:none}
+textarea.impin{min-height:200px;line-height:1.5}
+.filelbl{display:block;text-align:center;width:100%;background:var(--card);border:1.5px dashed var(--line);
+  border-radius:13px;padding:16px;font-weight:500;color:var(--green-dark);cursor:pointer}
+.filelbl input{display:none}
+.imgpick{display:flex;gap:10px;align-items:center}
+.imgpick .filelbl{padding:12px;flex:1}
+.imgpick .rthumb{width:64px;height:64px}
+.minibtn{color:var(--tomato);font-size:13.5px;padding:6px 4px;flex:none}
+.ver{text-align:center;font-size:11.5px;color:var(--muted);opacity:.75;margin:26px 0 6px}
 #banner{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 14px);right:14px;left:14px;z-index:60;
   background:var(--ink);color:var(--paper);border-radius:13px;padding:12px 15px;font-size:14px;
   box-shadow:0 8px 26px rgba(27,42,32,.28);display:none}
@@ -270,6 +296,7 @@ main{padding:4px 12px 0}
 var SUPABASE_URL = 'https://jicqslxgzpcaqptffyie.supabase.co';
 var SUPABASE_KEY = 'sb_publishable_UnLQ8CH_KXTaXHl_5ExK4g_6Q-Pn-sQ';
 
+var APP_VER = '3';
 var MEDS = 'תרופות';
 var CATS = ['ירקות ופירות','חלב וביצים','בשרים','דגים','לחם ומאפים','יבשים ושימורים','קפואים',
             'משקאות','חטיפים ומתוקים','ניקיון','טואלטיקה','לבית',MEDS,'עלי אקספרס/חו"ל','לתינוק','אחר'];
@@ -458,11 +485,22 @@ function planView(){
   return html;
 }
 
+function stepsHTML(t){
+  var ls=String(t||'').split(/\n+/).map(function(s){return s.trim();}).filter(Boolean);
+  var out='<div class="steps">', open=false;
+  ls.forEach(function(l){
+    if(/[:：]$/.test(l) && l.length<40){ if(open){out+='</ol>';open=false;} out+='<p><b>'+esc(l)+'</b></p>'; return; }
+    if(!open){ out+='<ol>'; open=true; } out+='<li>'+esc(l)+'</li>';
+  });
+  if(open) out+='</ol>';
+  return out+'</div>';
+}
 function ingsOf(rid){ return ring.filter(function(x){return x.recipe_id===rid;}); }
 
 function recipesView(){
   $('count').textContent = recipes.length ? recipes.length+' מתכונים שמורים' : 'עוד אין מתכונים';
-  var html='<button class="bigbtn" data-act="newRecipe">＋ מתכון חדש</button>';
+  var html='<button class="bigbtn" data-act="importRecipe">ייבוא מתכון · קישור / צילום / טקסט</button>'+
+    '<button class="ghost" data-act="newRecipe">＋ מתכון חדש (הקלדה ידנית)</button>';
   if(!recipes.length){
     html+='<div class="empty"><b>עוד אין מתכונים</b>הכניסי מתכון פעם אחת — ובכל פעם שתרצי להכין אותו, '+
       'תסמני מה חסר בבית והמצרכים ייכנסו לרשימה לבד</div>';
@@ -471,7 +509,9 @@ function recipesView(){
   html+='<div style="margin-top:14px"></div>';
   recipes.forEach(function(r){
     var n=ingsOf(r.id).length;
-    html+='<div class="rcard" data-recipe="'+esc(r.id)+'"><div style="flex:1;min-width:0">'+
+    html+='<div class="rcard" data-recipe="'+esc(r.id)+'">'+
+      (r.image_url?'<img class="rthumb" src="'+esc(r.image_url)+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">':'')+
+      '<div style="flex:1;min-width:0">'+
       '<div class="rname">'+esc(r.name)+'</div><div class="rsub">'+n+' מצרכים'+
       (r.note?' · '+esc(r.note):'')+'</div></div>'+
       '<button class="pchip" data-act="planCard" data-rname="'+esc(r.name)+'">＋ לתכנון</button>'+
@@ -487,6 +527,7 @@ function recipeView(){
   $('count').textContent='מה חסר בבית?';
   var n=ings.filter(function(i){return sel[i.id];}).length;
   var html='<button class="back" data-act="toRecipes">› חזרה למתכונים</button>'+
+    (r.image_url?'<img class="rimg" src="'+esc(r.image_url)+'" alt="" onerror="this.style.display=\'none\'">':'')+
     '<div class="rtitle">'+esc(r.name)+'</div>'+
     (r.note?'<div class="rnote">'+esc(r.note)+'</div>':'');
   if(!ings.length){
@@ -504,6 +545,8 @@ function recipeView(){
       (n?'הוספת '+n+' מצרכים לרשימה':'לא סומן כלום')+'</button>';
   }
   html+='<button class="ghost" data-act="planRecipe">＋ הוספה לתכנון השבת</button>';
+  if(r.instructions) html+='<div class="sech">אופן ההכנה</div>'+stepsHTML(r.instructions);
+  if(r.source_url) html+='<a class="srclink" href="'+esc(r.source_url)+'" target="_blank" rel="noopener">למתכון המקורי ›</a>';
   html+='<button class="ghost" data-act="editRecipe">עריכת המתכון</button>';
   return html;
 }
@@ -511,10 +554,17 @@ function recipeView(){
 function recipeEditView(){
   $('count').textContent = draft.id?'עריכת מתכון':'מתכון חדש';
   var html='<button class="back" data-act="cancelEdit">› ביטול</button>'+
+    (draft.imported?'<div class="hint">זה מסך הבדיקה: עברי על השם, המצרכים, הכמויות והקטגוריות, תקני מה שצריך ולחצי "שמירת המתכון".</div>':'')+
     '<div class="formrow"><label>שם המתכון</label>'+
     '<input id="dName" type="text" value="'+esc(draft.name)+'" placeholder="למשל: חמין לשבת"></div>'+
     '<div class="formrow"><label>הערה (לא חובה)</label>'+
     '<input id="dNote" type="text" value="'+esc(draft.note)+'" placeholder="למשל: להתחיל יום קודם"></div>'+
+    '<div class="formrow"><label>תמונה</label><div class="imgpick">'+
+      ((draft.imgPreview||draft.image_url)?'<img class="rthumb" src="'+esc(draft.imgPreview||draft.image_url)+'" alt="" onerror="this.style.display=\'none\'">':'')+
+      '<label class="filelbl">'+((draft.imgPreview||draft.image_url)?'החלפת תמונה':'＋ בחירת תמונה')+
+      '<input id="dImgFile" type="file" accept="image/*"></label>'+
+      ((draft.imgPreview||draft.image_url)?'<button class="minibtn" data-act="rmImg">הסרה</button>':'')+
+    '</div></div>'+
     '<div class="formrow"><label>מצרכים</label>';
   draft.ings.forEach(function(g,idx){
     html+='<div class="igrow" data-ig="'+idx+'">'+
@@ -524,6 +574,8 @@ function recipeEditView(){
       '<button class="rm" data-act="rmIg" aria-label="הסרה">✕</button></div>';
   });
   html+='<button class="addig" data-act="addIg">＋ עוד מצרך</button></div>'+
+    '<div class="formrow"><label>אופן ההכנה</label>'+
+    '<textarea id="dIns" placeholder="כל שלב בשורה נפרדת">'+esc(draft.instructions||'')+'</textarea></div>'+
     '<button class="bigbtn" data-act="saveRecipe">שמירת המתכון</button>';
   if(draft.id) html+='<button class="danger" data-act="delRecipe">מחיקת המתכון</button>';
   return html;
@@ -544,11 +596,12 @@ function render(){
 
   if(view==='edit' && !draft){ view=curRecipe?'recipe':'recipes'; lock=false; }
   if(lock && view==='edit') return;
-  if(view==='list') $('main').innerHTML=listView();
-  else if(view==='plan') $('main').innerHTML=planView();
-  else if(view==='recipes') $('main').innerHTML=recipesView();
-  else if(view==='recipe') $('main').innerHTML=recipeView();
-  else if(view==='edit'){ $('main').innerHTML=recipeEditView(); lock=true; }
+  var VER='<div class="ver">גרסה '+APP_VER+'</div>';
+  if(view==='list') $('main').innerHTML=listView()+VER;
+  else if(view==='plan') $('main').innerHTML=planView()+VER;
+  else if(view==='recipes') $('main').innerHTML=recipesView()+VER;
+  else if(view==='recipe') $('main').innerHTML=recipeView()+VER;
+  else if(view==='edit'){ $('main').innerHTML=recipeEditView()+VER; lock=true; }
 }
 
 function openSheet(id){
@@ -587,6 +640,281 @@ function openSheet(id){
 }
 function closeSheet(){ $('sheetWrap').classList.remove('show'); $('sheet').innerHTML=''; }
 
+/* ---------- תמונות ---------- */
+function shrink(file){
+  return new Promise(function(res,rej){
+    var u=URL.createObjectURL(file), im=new Image();
+    im.onload=function(){
+      var M=1000, w=im.naturalWidth, h=im.naturalHeight, k=Math.min(1,M/Math.max(w,h));
+      var c=document.createElement('canvas'); c.width=Math.round(w*k); c.height=Math.round(h*k);
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height); URL.revokeObjectURL(u);
+      c.toBlob(function(b){ b?res({blob:b,url:c.toDataURL('image/jpeg',.7)}):rej(); },'image/jpeg',.82);
+    };
+    im.onerror=function(){ URL.revokeObjectURL(u); rej(); };
+    im.src=u;
+  });
+}
+function uploadImg(blob){
+  var path='r'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
+  var st=sb.storage.from('recipe-images');
+  return st.upload(path,blob,{contentType:'image/jpeg',upsert:false}).then(function(r){
+    if(r.error) throw r.error;
+    return st.getPublicUrl(path).data.publicUrl;
+  });
+}
+document.addEventListener('change',function(e){
+  if(e.target.id!=='dImgFile'||!e.target.files||!e.target.files[0]||!draft) return;
+  collectDraft();
+  shrink(e.target.files[0]).then(function(o){
+    draft.imgBlob=o.blob; draft.imgPreview=o.url; lock=false; render();
+  }).catch(function(){ banner('לא הצלחתי לקרוא את התמונה'); });
+});
+
+/* ---------- פענוח מתכון ---------- */
+var FRAC={'½':' 1/2','¼':' 1/4','¾':' 3/4','⅓':' 1/3','⅔':' 2/3','⅛':' 1/8'};
+var UNITS='כוסות|כוסית|כוס|כפות|כף|כפיות|כפית|גרם|גר\'|גר|ג\'|ג׳|ק"ג|ק״ג|קג|קילו|ליטרים|ליטר|מ"ל|מ״ל|מל|יחידות|יחידה|יח\'|'+
+  'חבילות|חבילה|שקיות|שקית|פחיות|פחית|קופסאות|קופסת|קופסה|צנצנת|בקבוק|צרורות|צרור|שיניים|שיני|שן|ענפים|ענפי|ענף|'+
+  'מקלות|מקל|חתיכות|חתיכה|פרוסות|פרוסה|קורט|ראשי|ראש|קלחים|קלחי|קלח|גביעים|גביעי|גביע|מגשים|מגש|עלים|עלי|דפים|דף|נתחים|נתח|קוביות|קוביה';
+var NUMW='(?:חצי|רבע|שליש|שלושת רבעי|אחד|אחת|שתי|שני|שתיים|שניים|שלוש|שלושה|ארבע|ארבעה|חמש|חמישה|שש|שישה|שבע|שבעה|שמונה|עשר|עשרה|כמה|מעט|קצת)(?=\\s|$|[.,])';
+var NUMD='\\d+(?:[.,]\\d+)?(?:\\s*\\/\\s*\\d+)?(?:\\s+\\d\\s*\\/\\s*\\d)?';
+var NUM='(?:'+NUMD+'|'+NUMW+')';
+var QTY='(?:כ[-־]?\\s?|כ־)?'+NUM+'(?:\\s*[-–]\\s*'+NUM+')?';
+var RE_HEAD=new RegExp('^('+QTY+')\\s*(?:('+UNITS+')(?=[\\s,.)]|$))?\\s*(?:של\\s+)?(.+)$');
+var RE_TAIL=new RegExp('^(.+?)[\\s\\-–:]+('+QTY+')\\s*(?:('+UNITS+'))?\\.?$');
+var RE_UNIT_ONLY=new RegExp('^('+UNITS+')\\s+(.+)$');
+
+var CATMAP=[
+  ['בשרים',/עוף|חזה|שוקיים|כרעיים|כנפיים|פרגית|הודו|בקר|בשר|טחון|אנטריקוט|צלעות|כבד|נקניק|שניצל|קציצ|צלי|אסאדו|כתף|שייטל|כבש|טלה/],
+  ['דגים',/דג|סלמון|טונה|אמנון|לברק|דניס|בורי|מושט|הליבוט|שרימפ/],
+  ['חלב וביצים',/חלב|ביצ|חמאה|גבינ|שמנת|יוגורט|לבן|קוטג|מוצרלה|פרמזן|ריקוטה|לאבנה|מסקרפונה/],
+  ['ירקות ופירות',/בצל|שום|עגבני|מלפפון|פלפל(?! שחור)|גזר|תפו|בטטה|קישוא|חציל|כרוב|חסה|פטרוזיליה|כוסברה|שמיר|נענע|בזיליקום|לימון|תפוח|בננה|תמר|ענב|פטריות|סלרי|כרישה|ברוקולי|כרובית|דלעת|תרד|ג'ינג'ר|ג׳ינג׳ר|אבוקדו|תות|אגס|תפוז|רימון|צנונית|סלק|שעועית ירוקה|אפונה|תירס|בצלצל/],
+  ['לחם ומאפים',/לחם|לחמני|פיתה|חלה|פירורי לחם|בגט|טורטיה|לאפה/],
+  ['קפואים',/קפוא/],
+  ['משקאות',/יין|מיץ|סודה|בירה|קולה/],
+  ['חטיפים ומתוקים',/שוקולד|ריבה|ממרח|סוכריות|עוגיות|ביסקוויט|מרשמלו|חלבה/],
+  ['יבשים ושימורים',/קמח|סוכר|מלח|אורז|פסטה|אטריות|שמן|חומץ|רוטב|רסק|שימור|קטניות|עדשים|חומוס|שעועית|גרגירי|תבלין|פפריקה|כמון|כורכום|קינמון|אבקת|שמרים|סודה לשתייה|דבש|סילאן|טחינה|קוקוס|אגוז|שקד|צימוק|פתיתים|קוסקוס|בורגול|קינואה|סויה|חרדל|מיונז|קטשופ|ונילה|קורנפלור|פלפל שחור|אורגנו|זעתר|ציפורן|הל|אניס|מרק|קקאו|גלטין|פרג|שומשום|גריסים|פירורי|תירס שימורים/]
+];
+function guessCat(n){
+  for(var i=0;i<CATMAP.length;i++) if(CATMAP[i][1].test(n)) return CATMAP[i][0];
+  return 'אחר';
+}
+function clean(l){
+  l=String(l||'');
+  for(var f in FRAC) l=l.split(f).join(FRAC[f]);
+  return l.replace(/^[\s•·▪●○◦■□\-–*✓✔►>]+/,'').replace(/\s+/g,' ').trim();
+}
+function parseIng(line){
+  var l=clean(line), qty='', name=l, m;
+  if((m=l.match(RE_HEAD)) && m[3]){
+    qty=(m[1]+(m[2]?' '+m[2]:'')).trim(); name=m[3];
+  } else if((m=l.match(RE_TAIL)) && m[1].length>1){
+    name=m[1]; qty=(m[2]+(m[3]?' '+m[3]:'')).trim();
+  } else if((m=l.match(RE_UNIT_ONLY))){
+    qty=m[1]; name=m[2];
+  }
+  name=name.replace(/^(?:של)\s+/,'').replace(/\s*(?:לפי הטעם|לטיגון|לקישוט|להגשה|למריחה|לציפוי|\(לא חובה\)|-?\s*לא חובה)\s*\.?$/,'');
+  var main=name.split(/\s*[,(]\s*/)[0].replace(/[\s\-–:.]+$/,'').trim();
+  if(main.length>=2) name=main;
+  return {name:name.trim(), qty:qty.replace(/\s+/g,' '), category:guessCat(name)};
+}
+function isIngHead(c){ return c.length<30 && /^(?:ה?מצרכים|ה?רכיבים|מרכיבים|ה?חומרים|מה צריך|רשימת (?:ה)?מצרכים|ingredients)/i.test(c); }
+function isInsHead(c){ return c.length<35 && /(?:אופן ה?הכנה|הוראות ה?הכנה|דרך ה?הכנה|שלבי ה?הכנה|^ה?הכנה$|^איך מכינים|^instructions|^preparation|^method)/i.test(c); }
+function isMetaLine(c){ return /^(?:זמן|מנות|רמת קושי|קושי|תפוקה|כמות|כשר|פרווה|חלבי|בשרי|שתפו|הדפס|תגובות|מתכונים נוספים)/.test(c); }
+function stripStepNo(l){ return l.replace(/^(?:שלב\s*)?\d{1,2}\s*[.)\-–:]\s*/,'').trim(); }
+
+function parseRecipeText(text){
+  var lines=String(text||'').split(/\r?\n/).map(function(s){return s.replace(/\s+/g,' ').trim();}).filter(Boolean);
+  var ingH=-1, insH=-1;
+  lines.forEach(function(l,i){
+    var c=l.replace(/[:：\-–]+\s*$/,'').trim();
+    if(ingH<0 && isIngHead(c)) ingH=i;
+    else if(insH<0 && isInsHead(c)) insH=i;
+  });
+  var name='', ingLines=[], insLines=[];
+  if(ingH>=0 || insH>=0){
+    var top=Math.min(ingH<0?1e9:ingH, insH<0?1e9:insH);
+    for(var t=0;t<top;t++){ if(lines[t].length<70 && !isMetaLine(lines[t])){ name=lines[t]; break; } }
+    if(ingH>=0){
+      var end=(insH>ingH)?insH:lines.length;
+      ingLines=lines.slice(ingH+1,end);
+      if(insH<0){ // אין כותרת הכנה: מפרידים לפי שורות ארוכות
+        var k=ingLines.findIndex(function(l){return l.length>75 || /^\d{1,2}\s*[.)]\s*\S/.test(l)&&l.length>40;});
+        if(k>=0){ insLines=ingLines.slice(k); ingLines=ingLines.slice(0,k); }
+      }
+    }
+    if(insH>=0) insLines=lines.slice(insH+1, (ingH>insH)?ingH:lines.length);
+    if(ingH>insH && insH>=0) ingLines=lines.slice(ingH+1);
+  } else {
+    lines.forEach(function(l,i){
+      if(i===0 && l.length<60 && !RE_HEAD.test(clean(l))){ name=l; return; }
+      if(l.length>70) insLines.push(l); else ingLines.push(l);
+    });
+  }
+  var ings=[];
+  ingLines.forEach(function(l){
+    var c=l.trim();
+    if(!c || isMetaLine(c)) return;
+    if(/[:：]\s*$/.test(c) && c.length<30) return;   // תת-כותרת כמו "לרוטב:"
+    if(c.length>90) return;
+    var g=parseIng(c); if(g.name && g.name.length>1) ings.push(g);
+  });
+  var ins=insLines.map(stripStepNo).filter(function(l){return l && !isMetaLine(l);});
+  return {name:name.replace(/[:：]\s*$/,''), ings:ings, instructions:ins.join('\n')};
+}
+
+function decodeHTML(s){
+  try{ return new DOMParser().parseFromString('<!doctype html><body>'+String(s||''),'text/html').body.textContent.replace(/\s+/g,' ').trim(); }
+  catch(e){ return String(s||''); }
+}
+function findRecipeLD(o){
+  if(!o||typeof o!=='object') return null;
+  if(Array.isArray(o)){ for(var i=0;i<o.length;i++){ var r=findRecipeLD(o[i]); if(r) return r; } return null; }
+  var t=o['@type'];
+  if(t==='Recipe'||(Array.isArray(t)&&t.indexOf('Recipe')>=0)) return o;
+  return findRecipeLD(o['@graph'])||findRecipeLD(o.mainEntity)||findRecipeLD(o.mainEntityOfPage)||null;
+}
+function flatIns(x){
+  if(!x) return [];
+  if(typeof x==='string') return decodeHTML(x.replace(/<br\s*\/?>|<\/p>|<\/li>/gi,'\n')).length?
+    x.replace(/<br\s*\/?>|<\/p>|<\/li>/gi,'\n').split(/\n+/).map(decodeHTML).filter(Boolean):[];
+  if(Array.isArray(x)) return x.reduce(function(a,y){return a.concat(flatIns(y));},[]);
+  if(x.itemListElement) return (x.name?[decodeHTML(x.name)+':']:[]).concat(flatIns(x.itemListElement));
+  if(x.text) return [decodeHTML(x.text)];
+  if(x.name) return [decodeHTML(x.name)];
+  return [];
+}
+function ldImage(x){
+  if(!x) return '';
+  if(typeof x==='string') return x;
+  if(Array.isArray(x)) return ldImage(x[0]);
+  return x.url||x.contentUrl||'';
+}
+function htmlToText(doc){
+  ['script','style','noscript','nav','header','footer','aside','form','iframe','svg','button'].forEach(function(t){
+    [].slice.call(doc.querySelectorAll(t)).forEach(function(n){n.remove();}); });
+  var BLOCK=/^(P|DIV|LI|UL|OL|H[1-6]|BR|TR|SECTION|ARTICLE|TABLE|BLOCKQUOTE|DT|DD)$/, out=[];
+  (function walk(n){
+    if(n.nodeType===3){ out.push(n.nodeValue); return; }
+    if(n.nodeType!==1) return;
+    var b=BLOCK.test(n.tagName); if(b) out.push('\n');
+    for(var c=n.firstChild;c;c=c.nextSibling) walk(c);
+    if(b) out.push('\n');
+  })(doc.querySelector('main')||doc.querySelector('article')||doc.body);
+  return out.join('').replace(/[ \t ]+/g,' ').replace(/\n\s*/g,'\n');
+}
+function parseRecipeHTML(html,url){
+  var doc=new DOMParser().parseFromString(html,'text/html');
+  var meta=function(p){ var e=doc.querySelector('meta[property="'+p+'"],meta[name="'+p+'"]'); return e?e.getAttribute('content'):''; };
+  var abs=function(u){ try{ return u?new URL(u,url).href:''; }catch(e){ return ''; } };
+  var rec=null;
+  [].slice.call(doc.querySelectorAll('script[type="application/ld+json"]')).some(function(s){
+    try{ rec=findRecipeLD(JSON.parse(s.textContent)); }catch(e){} return !!rec; });
+  var ogTitle=decodeHTML(meta('og:title')||(doc.title||'')), ogImg=abs(meta('og:image'));
+  if(rec){
+    var ingsRaw=[].concat(rec.recipeIngredient||rec.ingredients||[]);
+    return {name:decodeHTML(rec.name)||ogTitle,
+      ings:ingsRaw.map(function(l){return parseIng(decodeHTML(l));}).filter(function(g){return g.name;}),
+      instructions:flatIns(rec.recipeInstructions).map(stripStepNo).join('\n'),
+      image:abs(ldImage(rec.image))||ogImg};
+  }
+  var r=parseRecipeText(htmlToText(doc));
+  return {name:r.name&&r.name.length<60?r.name:ogTitle, ings:r.ings, instructions:r.instructions, image:ogImg};
+}
+function fetchPage(url){
+  var viaProxy=function(){
+    return fetch('https://api.allorigins.win/get?url='+encodeURIComponent(url))
+      .then(function(r){ return r.json(); })
+      .then(function(j){ if(!j||!j.contents) throw new Error('empty'); return j.contents; });
+  };
+  if(!sb||!sb.functions) return viaProxy();
+  return sb.functions.invoke('fetch-recipe',{body:{url:url}}).then(function(r){
+    if(r.error||!r.data||!r.data.html) throw new Error('fn');
+    return r.data.html;
+  }).catch(viaProxy);
+}
+var tessP=null;
+function loadTess(){
+  if(window.Tesseract) return Promise.resolve(window.Tesseract);
+  if(tessP) return tessP;
+  tessP=new Promise(function(res,rej){
+    var s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+    s.onload=function(){ res(window.Tesseract); };
+    s.onerror=function(){ tessP=null; rej(new Error('load')); };
+    document.head.appendChild(s);
+  });
+  return tessP;
+}
+function ocrImage(file,status){
+  return loadTess().then(function(T){
+    return T.recognize(file,'heb+eng',{logger:function(m){
+      if(m.status==='recognizing text') status('קורא את הטקסט… '+Math.round((m.progress||0)*100)+'%');
+      else if(/load|initializ/i.test(m.status||'')) status('מכין את זיהוי הטקסט (בפעם הראשונה זה לוקח קצת יותר)…');
+    }});
+  }).then(function(r){ return (r&&r.data&&r.data.text)||''; });
+}
+function draftFromParsed(p,extra){
+  extra=extra||{};
+  var ings=(p.ings||[]).map(function(g){return {name:g.name,qty:g.qty||'',category:g.category||'אחר'};});
+  if(!ings.length) ings=[{name:'',qty:'',category:'אחר'}];
+  draft={id:null, imported:true, name:p.name||'', note:'', instructions:p.instructions||'',
+    image_url:extra.image||'', source_url:extra.source||'', ings:ings};
+  curRecipe=null; view='edit'; lock=false; closeSheet(); render(); window.scrollTo(0,0);
+  var n=(p.ings||[]).length;
+  banner(n?('זוהו '+n+' מצרכים. בדקי ותקני לפני שמירה.'):'לא זוהו מצרכים — אפשר להשלים ידנית.',4500);
+}
+function openImport(mode){
+  var tabs='<div class="seg">'+[['link','קישור'],['shot','צילום מסך'],['text','הדבקת טקסט']].map(function(t){
+    return '<button data-imp="'+t[0]+'" class="'+(t[0]===mode?'on':'')+'">'+t[1]+'</button>';}).join('')+'</div>';
+  var body='';
+  if(mode==='link') body='<input class="impin" id="impUrl" type="url" inputmode="url" placeholder="הדביקי כאן קישור למתכון" autocomplete="off">'+
+    '<button class="bigbtn" id="impGo">קריאת המתכון</button>'+
+    '<div class="hint">עובד הכי טוב באתרי מתכונים גדולים. אם לא זוהה — העתיקי את טקסט המתכון ונסי "הדבקת טקסט".</div>';
+  else if(mode==='shot') body='<label class="filelbl">בחירת צילום מסך<input id="impFile" type="file" accept="image/*"></label>'+
+    '<div class="hint">טיפ לדיוק מקסימלי באייפון: פותחים את צילום המסך בתמונות, לוחצים לחיצה ארוכה על הטקסט ← "בחר הכל" ← "העתק", ומדביקים בלשונית "הדבקת טקסט".</div>';
+  else body='<textarea class="impin" id="impText" placeholder="הדביקי כאן את כל המתכון — שם, מצרכים ואופן הכנה"></textarea>'+
+    '<button class="bigbtn" id="impGo">פירוק המתכון</button>';
+  $('sheet').innerHTML='<div class="grab"></div><h3>ייבוא מתכון</h3>'+tabs+body+'<div class="hint" id="impStat" style="display:none"></div>';
+  $('sheetWrap').classList.add('show');
+  var stat=function(t){ var s=$('impStat'); if(!s) return; s.style.display=t?'block':'none'; s.textContent=t||''; };
+  [].forEach.call($('sheet').querySelectorAll('[data-imp]'),function(b){
+    b.addEventListener('click',function(){ openImport(b.getAttribute('data-imp')); }); });
+  if(mode==='link'){
+    var go=function(){
+      var u=($('impUrl').value||'').trim(); var mm=u.match(/https?:\/\/\S+/); u=mm?mm[0]:u;
+      if(!/^https?:\/\//i.test(u)){ stat('צריך קישור שמתחיל ב-http'); return; }
+      stat('קורא את המתכון מהאתר…'); $('impGo').disabled=true;
+      fetchPage(u).then(function(html){
+        var p=parseRecipeHTML(html,u);
+        if(!p.ings.length && !p.instructions) throw new Error('nothing');
+        draftFromParsed(p,{image:p.image,source:u});
+      }).catch(function(){
+        stat('לא הצלחתי לקרוא את המתכון מהקישור הזה. נסי "הדבקת טקסט".');
+        if($('impGo')) $('impGo').disabled=false;
+      });
+    };
+    $('impGo').addEventListener('click',go);
+    $('impUrl').addEventListener('keydown',function(e){ if(e.key==='Enter') go(); });
+    setTimeout(function(){ try{$('impUrl').focus();}catch(e){} },50);
+  } else if(mode==='text'){
+    $('impGo').addEventListener('click',function(){
+      var t=$('impText').value; if(!t.trim()){ $('impText').focus(); return; }
+      draftFromParsed(parseRecipeText(t));
+    });
+  } else {
+    $('impFile').addEventListener('change',function(e){
+      var f=e.target.files&&e.target.files[0]; if(!f) return;
+      stat('מכין את התמונה…');
+      ocrImage(f,stat).then(function(txt){
+        if(!txt.trim()) throw new Error('empty');
+        draftFromParsed(parseRecipeText(txt));
+      }).catch(function(){ stat('לא הצלחתי לקרוא את צילום המסך. נסי את הטיפ של "הדבקת טקסט".'); });
+    });
+  }
+}
+/* חשיפה לבדיקות */
+window.__kniot={parseIng:parseIng,parseRecipeText:parseRecipeText,parseRecipeHTML:parseRecipeHTML};
+
 function openRecipe(id){
   curRecipe=id; sel={};
   ingsOf(id).forEach(function(i){ sel[i.id]=true; });
@@ -597,6 +925,7 @@ function collectDraft(){
   var nEl=$('dName'), noEl=$('dNote');
   if(nEl) draft.name=nEl.value;
   if(noEl) draft.note=noEl.value;
+  var inEl=$('dIns'); if(inEl) draft.instructions=inEl.value;
   [].forEach.call(document.querySelectorAll('.igrow'),function(row){
     var i=+row.getAttribute('data-ig');
     if(!draft.ings[i]) return;
@@ -608,11 +937,12 @@ function collectDraft(){
 function startEdit(id){
   if(id){
     var r=recipes.filter(function(x){return x.id===id;})[0]; if(!r) return;
-    draft={id:r.id,name:r.name,note:r.note||'',ings:ingsOf(r.id).map(function(i){
+    draft={id:r.id,name:r.name,note:r.note||'',instructions:r.instructions||'',image_url:r.image_url||'',
+      source_url:r.source_url||'',ings:ingsOf(r.id).map(function(i){
       return {name:i.name,qty:i.qty||'',category:i.category||'אחר'};})};
     if(!draft.ings.length) draft.ings=[{name:'',qty:'',category:'אחר'}];
   } else {
-    draft={id:null,name:'',note:'',ings:[{name:'',qty:'',category:'אחר'},{name:'',qty:'',category:'אחר'}]};
+    draft={id:null,name:'',note:'',instructions:'',image_url:'',source_url:'',ings:[{name:'',qty:'',category:'אחר'},{name:'',qty:'',category:'אחר'}]};
   }
   view='edit'; lock=false; render();
 }
@@ -625,16 +955,23 @@ function saveRecipe(){
       category:g.category||'אחר', sort:i};});
   var note=(draft.note||'').trim()||null;
   lock=false;
-  var p;
-  if(draft.id){
-    p=sb.from('recipes').update({name:name,note:note}).eq('id',draft.id)
-      .then(function(){ return sb.from('recipe_items').delete().eq('recipe_id',draft.id); })
-      .then(function(){ return draft.id; });
-  } else {
-    p=sb.from('recipes').insert({name:name,note:note}).select().then(function(r){
+  var d=draft;
+  banner('שומר…',0);
+  var p=(d.imgBlob ? uploadImg(d.imgBlob).catch(function(){
+      banner('התמונה לא נשמרה — המתכון יישמר בלעדיה'); return d.image_url||null; })
+    : Promise.resolve(d.image_url||null)).then(function(img){
+    var rec={name:name, note:note, instructions:(d.instructions||'').trim()||null,
+      image_url:img||null, source_url:(d.source_url||'').trim()||null};
+    if(d.id){
+      return sb.from('recipes').update(rec).eq('id',d.id).then(function(r){
+        if(r.error) throw r.error;
+        return sb.from('recipe_items').delete().eq('recipe_id',d.id); })
+        .then(function(){ return d.id; });
+    }
+    return sb.from('recipes').insert(rec).select().then(function(r){
       if(r.error||!r.data||!r.data[0]) throw (r.error||new Error('no id'));
       return r.data[0].id; });
-  }
+  });
   p.then(function(rid){
     if(!ings.length) return rid;
     ings.forEach(function(g){ g.recipe_id=rid; });
@@ -644,8 +981,11 @@ function saveRecipe(){
     banner('"'+name+'" נשמר. אפשר להוסיף עוד מתכון או לבחור מתכון להכנה.');
     render();
     return fetchAll(true);
-  }).catch(function(){
-    banner('השמירה נכשלה. בדקי חיבור ונסי שוב.');
+  }).catch(function(err){
+    var m=(err&&err.message)||'';
+    if(/column|schema|instructions|image_url|source_url/i.test(m))
+      banner('צריך להריץ ב-Supabase את קוד ה-SQL של גרסה 3 (תמונה ואופן הכנה).',0);
+    else banner('השמירה נכשלה. בדקי חיבור ונסי שוב.');
     if(!draft){ view=curRecipe?'recipe':'recipes'; lock=false; render(); }
   });
 }
@@ -697,6 +1037,9 @@ document.addEventListener('click',function(e){
   if(t.id==='clearBtn'){ clearDone(); return; }
 
   if(act==='newRecipe'){ startEdit(null); return; }
+  if(act==='importRecipe'){ openImport('link'); return; }
+  if(act==='rmImg'){ collectDraft(); draft.image_url=''; draft.imgBlob=null; draft.imgPreview='';
+    lock=false; render(); return; }
   if(act==='toRecipes'){ view='recipes'; render(); return; }
   if(act==='editRecipe'){ startEdit(curRecipe); return; }
   if(act==='cancelEdit'){ draft=null; lock=false;
